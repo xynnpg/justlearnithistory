@@ -1,0 +1,115 @@
+/* General Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+}
+
+/* Navbar Brand Styling */
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.just-learn-it {
+    color: #ffffff;
+}
+
+.history {
+    color: #ffd700;
+    font-weight: 800;
+}
+
+/* Landing Page Styles */
+.landing-page {
+    min-height: calc(100vh - 76px);
+}
+
+.hero-section {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 4rem 0;
+    margin-bottom: 2rem;
+    border-radius: 10px;
+}
+
+.hero-section h1 {
+    font-size: 3.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.cta-buttons {
+    margin-top: 2rem;
+}
+
+.btn-primary {
+    background-color: #2c3e50;
+    border-color: #2c3e50;
+}
+
+.btn-primary:hover {
+    background-color: #34495e;
+    border-color: #34495e;
+}
+
+.btn-outline-primary {
+    color: #2c3e50;
+    border-color: #2c3e50;
+}
+
+.btn-outline-primary:hover {
+    background-color: #2c3e50;
+    border-color: #2c3e50;
+}
+
+/* Feature Cards */
+.feature-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    margin-bottom: 2rem;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+
+.feature-card i {
+    color: #2c3e50;
+}
+
+/* Lessons and Tests Pages */
+.lesson-card, .test-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+}
+
+/* Admin Dashboard */
+.admin-dashboard {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 10px;
+}
+
+.admin-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-section h1 {
+        font-size: 2.5rem;
+    }
+    
+    .cta-buttons .btn {
+        display: block;
+        margin: 1rem 0;
+    }
+} 

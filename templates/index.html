@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Just Learn It - History{% endblock %}
+
+{% block content %}
+<div class="landing-page">
+    <!-- Hero Section -->
+    <div class="page-header text-center">
+        <div class="container">
+            <h1 class="display-3 mb-3">
+                <span class="just-learn-it">Just Learn It</span>
+                <span class="history">History</span>
+            </h1>
+            <p class="lead mb-4">Discover the fascinating world of history through interactive lessons and engaging tests.</p>
+            <div class="cta-buttons">
+                <a href="{{ url_for('lessons') }}" class="btn btn-primary btn-lg me-3">
+                    <i class="fas fa-book-open me-2"></i> Start Learning
+                </a>
+                <a href="{{ url_for('tests') }}" class="btn btn-light btn-lg">
+                    <i class="fas fa-tasks me-2"></i> Take Tests
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="container py-5">
+        <h2 class="text-center section-title mx-auto" style="max-width: 600px;">Why Choose Just Learn It History?</h2>
+        <div class="row g-4 mt-4">
+            <div class="col-md-4">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-body">
+                        <div class="feature-icon mb-4">
+                            <i class="fas fa-book-open fa-3x text-primary"></i>
+                        </div>
+                        <h3 class="card-title h4">Interactive Lessons</h3>
+                        <p class="card-text">Engage with history through our carefully crafted lessons that bring the past to life with rich content and multimedia.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-body">
+                        <div class="feature-icon mb-4">
+                            <i class="fas fa-tasks fa-3x text-primary"></i>
+                        </div>
+                        <h3 class="card-title h4">Practice Tests</h3>
+                        <p class="card-text">Test your knowledge with our comprehensive quizzes designed to challenge and reinforce your understanding of historical events.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-body">
+                        <div class="feature-icon mb-4">
+                            <i class="fas fa-chart-line fa-3x text-primary"></i>
+                        </div>
+                        <h3 class="card-title h4">Track Progress</h3>
+                        <p class="card-text">Monitor your learning journey and improve over time with detailed feedback and performance analytics.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Latest Lessons Section -->
+    <div class="bg-light py-5">
+        <div class="container">
+            <h2 class="text-center section-title mx-auto" style="max-width: 600px;">Latest Lessons</h2>
+            <div class="row g-4 mt-4">
+                {% for lesson in latest_lessons %}
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ lesson.title }}</h5>
+                            <p class="card-text">{{ lesson.description[:150] }}{% if lesson.description|length > 150 %}...{% endif %}</p>
+                            <a href="{{ url_for('lesson', lesson_id=lesson.id) }}" class="btn btn-outline-primary">Read More</a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-12 text-center">
+                    <p>No lessons available yet. Check back soon!</p>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="text-center mt-4">
+                <a href="{{ url_for('lessons') }}" class="btn btn-primary">View All Lessons</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Testimonials Section -->
+    <div class="container py-5">
+        <h2 class="text-center section-title mx-auto" style="max-width: 600px;">What Our Users Say</h2>
+        <div class="row g-4 mt-4">
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="testimonial-avatar me-3">
+                                <i class="fas fa-user-circle fa-3x text-primary"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title mb-0">Sarah Johnson</h5>
+                                <p class="text-muted mb-0">History Student</p>
+                            </div>
+                        </div>
+                        <p class="card-text">"Just Learn It History has completely transformed how I study. The interactive lessons make complex historical events easy to understand."</p>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="testimonial-avatar me-3">
+                                <i class="fas fa-user-circle fa-3x text-primary"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title mb-0">Michael Chen</h5>
+                                <p class="text-muted mb-0">History Teacher</p>
+                            </div>
+                        </div>
+                        <p class="card-text">"As a teacher, I recommend Just Learn It History to all my students. The tests are challenging but fair, and the lessons are comprehensive."</p>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="testimonial-avatar me-3">
+                                <i class="fas fa-user-circle fa-3x text-primary"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title mb-0">Emma Rodriguez</h5>
+                                <p class="text-muted mb-0">History Enthusiast</p>
+                            </div>
+                        </div>
+                        <p class="card-text">"I've always been interested in history but found textbooks boring. Just Learn It History makes learning fun and engaging!"</p>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action Section -->
+    <div class="bg-primary text-white py-5">
+        <div class="container text-center">
+            <h2 class="mb-4">Ready to Start Your History Journey?</h2>
+            <p class="lead mb-4">Join thousands of learners who are discovering the fascinating world of history with Just Learn It.</p>
+            <a href="{{ url_for('lessons') }}" class="btn btn-light btn-lg">Get Started Now</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+    .just-learn-it {
+        color: #fff;
+        font-weight: 700;
+    }
+    
+    .history {
+        color: #f1c40f;
+        font-weight: 700;
+    }
+    
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        line-height: 80px;
+        background-color: rgba(52, 152, 219, 0.1);
+        border-radius: 50%;
+        margin: 0 auto;
+    }
+    
+    .testimonial-avatar {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .bg-primary {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+    }
+</style>
+{% endblock %} 

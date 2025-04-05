@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Lesson{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Edit Lesson</h1>
+    <form method="POST">
+        {{ form.csrf_token }}
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            {{ form.title(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            <label for="content" class="form-label">Content</label>
+            <div id="editor">{{ lesson.content | safe }}</div>
+            {{ form.content }}
+        </div>
+        <div class="mb-3">
+            <label for="order" class="form-label">Order</label>
+            {{ form.order(class="form-control", type="number") }}
+        </div>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{{ url_for('admin') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    var quill = new Quill('#editor', {
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                [{ 'header': [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                ['blockquote', 'code-block'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'script': 'sub'}, { 'script': 'super' }],
+                [{ 'indent': '-1'}, { 'indent': '+1' }],
+                [{ 'color': [] }, { 'background': [] }],
+                ['link', 'image'],
+                ['clean']
+            ]
+        }
+    });
+
+    // Update hidden form field with Quill content before submit
+    document.querySelector('form').onsubmit = function() {
+        document.querySelector('#content').value = quill.root.innerHTML;
+        return true;
+    };
+</script>
+{% endblock %} 

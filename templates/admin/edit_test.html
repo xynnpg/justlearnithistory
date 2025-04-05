@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Test{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Edit Test</h1>
+    <form method="POST">
+        {{ form.csrf_token }}
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            {{ form.title(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Questions</label>
+            <div id="questions-container">
+                {% if test %}
+                    {% for question in test.get_questions() %}
+                    <div class="question-block mb-3 p-3 border rounded">
+                        <div class="mb-2">
+                            <label class="form-label">Question Type</label>
+                            <select class="form-select question-type" onchange="updateQuestionFields(this)">
+                                <option value="multiple_choice" {% if question.type == 'multiple_choice' %}selected{% endif %}>Multiple Choice</option>
+                                <option value="true_false" {% if question.type == 'true_false' %}selected{% endif %}>True/False</option>
+                                <option value="short_answer" {% if question.type == 'short_answer' %}selected{% endif %}>Short Answer</option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Question Text</label>
+                            <div class="question-editor">{{ question.text | safe }}</div>
+                        </div>
+                        <div class="question-options">
+                            {% if question.type == 'multiple_choice' %}
+                                {% for option in question.options %}
+                                <div class="mb-2">
+                                    <input type="text" class="form-control" value="{{ option }}" placeholder="Option {{ loop.index }}">
+                                </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Correct Answer</label>
+                            {% if question.type == 'multiple_choice' %}
+                                <select class="form-select">
+                                    {% for option in question.options %}
+                                    <option value="{{ loop.index0 }}" {% if loop.index0 == question.correct_answer %}selected{% endif %}>Option {{ loop.index }}</option>
+                                    {% endfor %}
+                                </select>
+                            {% elif question.type == 'true_false' %}
+                                <select class="form-select">
+                                    <option value="true" {% if question.correct_answer == 'true' %}selected{% endif %}>True</option>
+                                    <option value="false" {% if question.correct_answer == 'false' %}selected{% endif %}>False</option>
+                                </select>
+                            {% else %}
+                                <input type="text" class="form-control" value="{{ question.correct_answer }}">
+                            {% endif %}
+                        </div>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeQuestion(this)">Remove Question</button>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <button type="button" class="btn btn-secondary" onclick="addQuestion()">Add Question</button>
+        </div>
+        {{ form.questions_json }}
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{{ url_for('admin') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize Quill editors for existing questions
+    document.querySelectorAll('.question-editor').forEach(function(element) {
+        new Quill(element, {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline'],
+                    ['link'],
+                    ['clean']
+                ]
+            }
+        });
+    });
+
+    function addQuestion() {
+        const container = document.getElementById('questions-container');
+        const questionBlock = document.createElement('div');
+        questionBlock.className = 'question-block mb-3 p-3 border rounded';
+        questionBlock.innerHTML = `
+            <div class="mb-2">
+                <label class="form-label">Question Type</label>
+                <select class="form-select question-type" onchange="updateQuestionFields(this)">
+                    <option value="multiple_choice">Multiple Choice</option>
+                    <option value="true_false">True/False</option>
+                    <option value="short_answer">Short Answer</option>
+                </select>
+            </div>
+            <div class="mb-2">
+                <label class="form-label">Question Text</label>
+                <div class="question-editor"></div>
+            </div>
+            <div class="question-options">
+                <div class="mb-2">
+                    <input type="text" class="form-control" placeholder="Option 1">
+                </div>
+                <div class="mb-2">
+                    <input type="text" class="form-control" placeholder="Option 2">
+                </div>
+            </div>
+            <div class="mb-2">
+                <label class="form-label">Correct Answer</label>
+                <select class="form-select">
+                    <option value="0">Option 1</option>
+                    <option value="1">Option 2</option>
+                </select>
+            </div>
+            <button type="button" class="btn btn-danger btn-sm" onclick="removeQuestion(this)">Remove Question</button>
+        `;
+        container.appendChild(questionBlock);
+        
+        // Initialize Quill for the new question
+        new Quill(questionBlock.querySelector('.question-editor'), {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline'],
+                    ['link'],
+                    ['clean']
+                ]
+            }
+        });
+    }
+
+    function removeQuestion(button) {
+        button.closest('.question-block').remove();
+    }
+
+    function updateQuestionFields(select) {
+        const questionBlock = select.closest('.question-block');
+        const optionsDiv = questionBlock.querySelector('.question-options');
+        const answerDiv = questionBlock.querySelector('.mb-2:last-of-type');
+        
+        if (select.value === 'multiple_choice') {
+            optionsDiv.innerHTML = `
+                <div class="mb-2">
+                    <input type="text" class="form-control" placeholder="Option 1">
+                </div>
+                <div class="mb-2">
+                    <input type="text" class="form-control" placeholder="Option 2">
+                </div>
+            `;
+            answerDiv.innerHTML = `
+                <label class="form-label">Correct Answer</label>
+                <select class="form-select">
+                    <option value="0">Option 1</option>
+                    <option value="1">Option 2</option>
+                </select>
+            `;
+        } else if (select.value === 'true_false') {
+            optionsDiv.innerHTML = '';
+            answerDiv.innerHTML = `
+                <label class="form-label">Correct Answer</label>
+                <select class="form-select">
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                </select>
+            `;
+        } else {
+            optionsDiv.innerHTML = '';
+            answerDiv.innerHTML = `
+                <label class="form-label">Correct Answer</label>
+                <input type="text" class="form-control">
+            `;
+        }
+    }
+
+    // Update hidden form field with questions data before submit
+    document.querySelector('form').onsubmit = function() {
+        const questions = [];
+        document.querySelectorAll('.question-block').forEach(function(block) {
+            const type = block.querySelector('.question-type').value;
+            const text = block.querySelector('.ql-editor').innerHTML;
+            let options = [];
+            let correctAnswer;
+            
+            if (type === 'multiple_choice') {
+                options = Array.from(block.querySelectorAll('.question-options input')).map(input => input.value);
+                correctAnswer = parseInt(block.querySelector('.question-options + .mb-2 select').value);
+            } else if (type === 'true_false') {
+                correctAnswer = block.querySelector('.mb-2:last-of-type select').value;
+            } else {
+                correctAnswer = block.querySelector('.mb-2:last-of-type input').value;
+            }
+            
+            questions.push({
+                type: type,
+                text: text,
+                options: options,
+                correct_answer: correctAnswer
+            });
+        });
+        
+        document.querySelector('#questions_json').value = JSON.stringify(questions);
+        return true;
+    };
+</script>
+{% endblock %} 

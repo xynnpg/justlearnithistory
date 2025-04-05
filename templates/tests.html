@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block title %}Tests - Just Learn It History{% endblock %}
+
+{% block content %}
+<div class="page-header text-center">
+    <div class="container">
+        <h1>History Tests</h1>
+        <p class="lead">Challenge your knowledge with our interactive history tests</p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-12">
+            {% if tests %}
+                <div class="row g-4">
+                    {% for test in tests %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 test-card">
+                            <div class="card-body">
+                                <div class="test-icon mb-3">
+                                    <i class="fas fa-tasks fa-2x text-primary"></i>
+                                </div>
+                                <h3 class="card-title h4">{{ test.title }}</h3>
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        <i class="fas fa-question-circle me-1"></i> {{ test.get_questions()|length }} questions
+                                    </small>
+                                </p>
+                                <button class="btn btn-primary start-test" data-test-id="{{ test.id }}" data-bs-toggle="modal" data-bs-target="#testModal{{ test.id }}">
+                                    <i class="fas fa-play me-2"></i> Start Test
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Test Modal -->
+                    <div class="modal fade" id="testModal{{ test.id }}" tabindex="-1">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">{{ test.title }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="testForm{{ test.id }}" class="test-form">
+                                        {% for question in test.get_questions() %}
+                                        <div class="question-block mb-4">
+                                            <div class="question-text mb-3">
+                                                {{ question.text | safe }}
+                                            </div>
+                                            {% if question.type == 'multiple_choice' %}
+                                                <div class="options">
+                                                    {% for option in question.options %}
+                                                    <div class="form-check mb-2">
+                                                        <input class="form-check-input" type="radio" name="q{{ loop.index }}" value="{{ loop.index0 }}" id="q{{ loop.index }}o{{ loop.index }}">
+                                                        <label class="form-check-label" for="q{{ loop.index }}o{{ loop.index }}">
+                                                            {{ option }}
+                                                        </label>
+                                                    </div>
+                                                    {% endfor %}
+                                                </div>
+                                            {% elif question.type == 'true_false' %}
+                                                <div class="options">
+                                                    <div class="form-check mb-2">
+                                                        <input class="form-check-input" type="radio" name="q{{ loop.index }}" value="true" id="q{{ loop.index }}t">
+                                                        <label class="form-check-label" for="q{{ loop.index }}t">True</label>
+                                                    </div>
+                                                    <div class="form-check mb-2">
+                                                        <input class="form-check-input" type="radio" name="q{{ loop.index }}" value="false" id="q{{ loop.index }}f">
+                                                        <label class="form-check-label" for="q{{ loop.index }}f">False</label>
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                <div class="form-group">
+                                                    <input type="text" class="form-control" name="q{{ loop.index }}" placeholder="Your answer">
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        {% endfor %}
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-paper-plane me-2"></i> Submit Test
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Results Modal -->
+                    <div class="modal fade" id="resultsModal{{ test.id }}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Test Results</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="text-center">
+                                        <div class="results-icon mb-4">
+                                            <i class="fas fa-trophy fa-3x text-warning"></i>
+                                        </div>
+                                        <h3 class="mb-4">Your Score: <span id="score{{ test.id }}">0</span>%</h3>
+                                        <p>Correct Answers: <span id="correct{{ test.id }}">0</span> / <span id="total{{ test.id }}">0</span></p>
+                                        <div class="progress mt-4 mb-3" style="height: 10px;">
+                                            <div id="progressBar{{ test.id }}" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle me-2"></i> No tests available yet. Please check back later.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.querySelectorAll('.test-form').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const testId = this.id.replace('testForm', '');
+            const questions = this.querySelectorAll('.question-block');
+            const answers = [];
+            
+            questions.forEach(function(question, index) {
+                const questionType = question.querySelector('.options') ? 
+                    (question.querySelector('.form-check-input[type="radio"]').name.includes('t') ? 'true_false' : 'multiple_choice') : 
+                    'short_answer';
+                
+                let answer;
+                if (questionType === 'multiple_choice' || questionType === 'true_false') {
+                    const selectedOption = question.querySelector('.form-check-input:checked');
+                    answer = selectedOption ? selectedOption.value : null;
+                } else {
+                    answer = question.querySelector('input[type="text"]').value;
+                }
+                
+                answers.push({
+                    questionIndex: index,
+                    answer: answer
+                });
+            });
+            
+            // Send answers to server
+            fetch(`/test/${testId}/submit`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ answers: answers })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update results modal
+                document.getElementById(`score${testId}`).textContent = data.score.toFixed(1);
+                document.getElementById(`correct${testId}`).textContent = data.correct_answers;
+                document.getElementById(`total${testId}`).textContent = data.total_questions;
+                
+                // Update progress bar
+                const progressBar = document.getElementById(`progressBar${testId}`);
+                progressBar.style.width = `${data.score}%`;
+                
+                // Set color based on score
+                if (data.score >= 80) {
+                    progressBar.className = 'progress-bar bg-success';
+                } else if (data.score >= 60) {
+                    progressBar.className = 'progress-bar bg-warning';
+                } else {
+                    progressBar.className = 'progress-bar bg-danger';
+                }
+                
+                // Close test modal and show results modal
+                const testModal = document.querySelector(`#testModal${testId}`);
+                const testModalInstance = bootstrap.Modal.getInstance(testModal);
+                testModalInstance.hide();
+                
+                const resultsModal = new bootstrap.Modal(document.querySelector(`#resultsModal${testId}`));
+                resultsModal.show();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while submitting the test. Please try again.');
+            });
+        });
+    });
+</script>
+
+<style>
+    .test-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .test-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .test-icon {
+        width: 60px;
+        height: 60px;
+        line-height: 60px;
+        text-align: center;
+        background-color: rgba(52, 152, 219, 0.1);
+        border-radius: 50%;
+    }
+    
+    .question-block {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .question-text {
+        font-weight: 500;
+        color: var(--primary-color);
+    }
+    
+    .form-check-input:checked {
+        background-color: var(--secondary-color);
+        border-color: var(--secondary-color);
+    }
+    
+    .results-icon {
+        width: 80px;
+        height: 80px;
+        line-height: 80px;
+        text-align: center;
+        background-color: rgba(241, 196, 15, 0.1);
+        border-radius: 50%;
+        margin: 0 auto;
+    }
+    
+    .progress {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+</style>
+{% endblock %} 
