@@ -9,59 +9,64 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #3498db;
-            --secondary-color: #2c3e50;
-            --accent-color: #e74c3c;
-            --light-color: #ecf0f1;
-            --dark-color: #2c3e50;
-            --success-color: #2ecc71;
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --accent-color: #3b82f6;
+            --light-color: #f8fafc;
+            --dark-color: #1e293b;
+            --success-color: #22c55e;
+            --text-color: #334155;
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
         }
         
         body {
-            font-family: 'Poppins', sans-serif;
-            color: #333;
-            background-color: #f8f9fa;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-color);
+            background-color: var(--light-color);
             line-height: 1.6;
         }
         
         h1, h2, h3, h4, h5, h6 {
-            font-family: 'Playfair Display', serif;
-            color: var(--secondary-color);
+            font-family: 'Inter', sans-serif;
+            color: var(--dark-color);
+            font-weight: 600;
         }
         
         .navbar {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1rem 0;
         }
         
         .navbar-brand {
-            font-family: 'Playfair Display', serif;
             font-weight: 700;
-            color: white !important;
-            font-size: 1.5rem;
+            color: var(--dark-color) !important;
+            font-size: 1.25rem;
         }
         
         .nav-link {
-            color: rgba(255, 255, 255, 0.9) !important;
+            color: var(--text-color) !important;
             font-weight: 500;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             padding: 0.5rem 1rem;
-            border-radius: 4px;
+            border-radius: var(--border-radius);
+            margin: 0 0.25rem;
         }
         
         .nav-link:hover {
-            color: white !important;
-            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--primary-color) !important;
+            background-color: rgba(37, 99, 235, 0.1);
         }
         
         .btn {
-            border-radius: 30px;
-            padding: 0.5rem 1.5rem;
+            border-radius: var(--border-radius);
+            padding: 0.625rem 1.25rem;
             font-weight: 500;
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
         
         .btn-primary {
@@ -70,67 +75,57 @@
         }
         
         .btn-primary:hover {
-            background-color: #2980b9;
-            border-color: #2980b9;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
-        }
-        
-        .btn-secondary {
             background-color: var(--secondary-color);
             border-color: var(--secondary-color);
-        }
-        
-        .btn-secondary:hover {
-            background-color: #1a252f;
-            border-color: #1a252f;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(44, 62, 80, 0.3);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
         }
         
         .alert {
-            border-radius: 10px;
+            border-radius: var(--border-radius);
             border: none;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
         
         .alert-info {
-            background-color: rgba(52, 152, 219, 0.1);
-            color: var(--secondary-color);
+            background-color: rgba(37, 99, 235, 0.1);
+            color: var(--dark-color);
         }
         
         .card {
             border: none;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+            background: white;
         }
         
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
         }
         
         .card-title {
-            color: var(--primary-color);
+            color: var(--dark-color);
             font-weight: 600;
         }
         
         .page-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
+            background: white;
+            color: var(--dark-color);
             padding: 3rem 0;
             margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
         }
         
         .page-header h1 {
-            color: white;
+            color: var(--dark-color);
             font-weight: 700;
         }
         
         .page-header .lead {
-            color: rgba(255, 255, 255, 0.9);
-            font-weight: 300;
+            color: var(--text-color);
+            font-weight: 400;
         }
         
         .section-title {
@@ -142,52 +137,89 @@
         .section-title::after {
             content: '';
             position: absolute;
-            width: 50px;
+            width: 40px;
             height: 3px;
-            background-color: var(--secondary-color);
+            background-color: var(--primary-color);
             bottom: 0;
             left: 0;
+            border-radius: 2px;
         }
         
         footer {
-            background-color: var(--secondary-color);
-            color: white;
+            background-color: white;
+            color: var(--text-color);
             padding: 3rem 0;
             margin-top: 3rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
         }
         
         footer h5 {
-            color: white;
-            font-weight: 700;
+            color: var(--dark-color);
+            font-weight: 600;
             margin-bottom: 1.5rem;
         }
         
         footer a {
-            color: rgba(255, 255, 255, 0.8);
+            color: var(--text-color);
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
         
         footer a:hover {
-            color: white;
+            color: var(--primary-color);
             text-decoration: none;
         }
         
         .social-icons a {
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            line-height: 40px;
-            text-align: center;
-            background-color: rgba(255, 255, 255, 0.1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background-color: rgba(37, 99, 235, 0.1);
             border-radius: 50%;
-            margin-right: 10px;
-            transition: all 0.3s ease;
+            margin-right: 8px;
+            transition: var(--transition);
+            color: var(--primary-color);
         }
         
         .social-icons a:hover {
             background-color: var(--primary-color);
-            transform: translateY(-3px);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1200px;
+            padding: 0 1.5rem;
+        }
+
+        .hero-section {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 4rem 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            height: 100%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-card i {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 1rem;
         }
     </style>
     {% block head %}{% endblock %}
@@ -252,7 +284,7 @@
                 </div>
                 <div class="col-md-4">
                     <h5>Contact</h5>
-                    <p>Email: contact@justlearnithistory.com</p>
+                    <p>Email: justlearnitcnvga@gmail.com</p>
                     <div class="social-icons">
                         <a href="#"><i class="fab fa-facebook-f"></i></a>
                         <a href="#"><i class="fab fa-twitter"></i></a>

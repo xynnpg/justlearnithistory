@@ -7,19 +7,19 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <h1 class="display-4 mb-4">Învață Istoria într-un Mod Interactiv</h1>
-                <p class="lead mb-4">Descoperă evenimentele istorice importante prin lecții interactive și teste practice. Just Learn It History face învățarea istoriei distractivă și angajantă.</p>
+                <h1 class="display-4 fw-bold mb-4">Învață Istoria într-un Mod Interactiv</h1>
+                <p class="lead mb-4 text-muted">Descoperă evenimentele istorice importante prin lecții interactive și teste practice. Just Learn It History face învățarea istoriei distractivă și angajantă.</p>
                 <div class="d-flex gap-3">
                     <a href="{{ url_for('lessons') }}" class="btn btn-primary btn-lg">
                         <i class="fas fa-book-open me-2"></i> Începe Lecțiile
                     </a>
-                    <a href="{{ url_for('tests') }}" class="btn btn-outline-light btn-lg">
+                    <a href="{{ url_for('tests') }}" class="btn btn-outline-primary btn-lg">
                         <i class="fas fa-tasks me-2"></i> Fă Teste
                     </a>
                 </div>
             </div>
             <div class="col-lg-6 d-none d-lg-block">
-                <img src="https://via.placeholder.com/600x400" alt="History Learning" class="img-fluid rounded shadow">
+                <img src="https://illustrations.popsy.co/white/student-taking-online-course.svg" alt="Learning Illustration" class="img-fluid">
             </div>
         </div>
     </div>
@@ -35,35 +35,29 @@
     
     <div class="row g-4 mb-5">
         <div class="col-md-4">
-            <div class="card h-100 feature-card">
+            <div class="feature-card">
                 <div class="card-body text-center">
-                    <div class="feature-icon mb-4">
-                        <i class="fas fa-book-open fa-3x text-primary"></i>
-                    </div>
-                    <h3 class="card-title h4">Lecții Interactive</h3>
-                    <p class="card-text">Explorează evenimente istorice importante prin lecții bine structurate și conținut bogat.</p>
+                    <i class="fas fa-book-open mb-4"></i>
+                    <h3 class="h4 mb-3">Lecții Interactive</h3>
+                    <p class="text-muted mb-0">Explorează evenimente istorice importante prin lecții bine structurate și conținut bogat.</p>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card h-100 feature-card">
+            <div class="feature-card">
                 <div class="card-body text-center">
-                    <div class="feature-icon mb-4">
-                        <i class="fas fa-tasks fa-3x text-primary"></i>
-                    </div>
-                    <h3 class="card-title h4">Teste Practice</h3>
-                    <p class="card-text">Verifică-ți cunoștințele cu teste interactive care acoperă diverse perioade istorice.</p>
+                    <i class="fas fa-tasks mb-4"></i>
+                    <h3 class="h4 mb-3">Teste Practice</h3>
+                    <p class="text-muted mb-0">Verifică-ți cunoștințele cu teste interactive care acoperă diverse perioade istorice.</p>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card h-100 feature-card">
+            <div class="feature-card">
                 <div class="card-body text-center">
-                    <div class="feature-icon mb-4">
-                        <i class="fas fa-chart-line fa-3x text-primary"></i>
-                    </div>
-                    <h3 class="card-title h4">Urmărește Progresul</h3>
-                    <p class="card-text">Monitorizează-ți progresul și îmbunătățește-ți înțelegerea istoriei în timp.</p>
+                    <i class="fas fa-unlock mb-4"></i>
+                    <h3 class="h4 mb-3">Fără Autentificare</h3>
+                    <p class="text-muted mb-0">Nu este necesară crearea unui cont pentru a accesa lecțiile și testele.</p>
                 </div>
             </div>
         </div>
@@ -80,18 +74,20 @@
         {% if latest_lessons %}
             {% for lesson in latest_lessons %}
             <div class="col-md-4">
-                <div class="card h-100 lesson-card">
+                <div class="card h-100">
                     <div class="card-body">
-                        <div class="lesson-icon mb-3">
-                            <i class="fas fa-book fa-2x text-primary"></i>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="feature-icon me-3">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <h3 class="h5 mb-0">{{ lesson.title }}</h3>
                         </div>
-                        <h3 class="card-title h4">{{ lesson.title }}</h3>
-                        <p class="card-text">
-                            <small class="text-muted">
+                        <p class="text-muted mb-3">
+                            <small>
                                 <i class="fas fa-sort-numeric-down me-1"></i> Ordine: {{ lesson.order }}
                             </small>
                         </p>
-                        <a href="{{ url_for('lesson', lesson_id=lesson.id) }}" class="btn btn-primary">
+                        <a href="{{ url_for('lesson', lesson_id=lesson.id) }}" class="btn btn-primary w-100">
                             <i class="fas fa-book-open me-2"></i> Vezi Lecția
                         </a>
                     </div>
@@ -107,76 +103,9 @@
         {% endif %}
     </div>
     
-    <div class="row mb-5">
-        <div class="col-12 text-center">
-            <h2 class="section-title">Ce Spun Utilizatorii Noștri</h2>
-            <p class="lead text-muted">Experiențele reale ale utilizatorilor cu platforma noastră</p>
-        </div>
-    </div>
-    
-    <div class="row g-4 mb-5">
-        <div class="col-md-4">
-            <div class="card h-100 testimonial-card">
-                <div class="card-body text-center">
-                    <div class="testimonial-avatar mb-3">
-                        <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Maria Popescu" class="rounded-circle">
-                    </div>
-                    <div class="testimonial-rating mb-3">
-                        <i class="fas fa-star text-warning"></i>
-                        <i class="fas fa-star text-warning"></i>
-                        <i class="fas fa-star text-warning"></i>
-                        <i class="fas fa-star text-warning"></i>
-                        <i class="fas fa-star text-warning"></i>
-                    </div>
-                    <p class="card-text">"Just Learn It History a transformat complet modul în care învăț istoria. Lecțiile sunt interactive și angajante, iar testele mă ajută să verific cunoștințele mele. Recomand cu încredere!"</p>
-                    <h5 class="card-title mt-3">Maria Popescu</h5>
-                    <p class="text-muted">Studentă la Istorie</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card h-100 testimonial-card">
-                <div class="card-body text-center">
-                    <div class="testimonial-avatar mb-3">
-                        <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="Alexandru Ionescu" class="rounded-circle">
-                    </div>
-                    <div class="testimonial-rating mb-3">
-                        <i class="fas fa-star text-warning"></i>
-                        <i class="fas fa-star text-warning"></i>
-                        <i class="fas fa-star text-warning"></i>
-                        <i class="fas fa-star text-warning"></i>
-                        <i class="fas fa-star text-warning"></i>
-                    </div>
-                    <p class="card-text">"Ca profesor de istorie, folosesc Just Learn It History în clasele mele și rezultatele sunt remarcabile. Elevii mei sunt mult mai implicați și învață mai eficient. O resursă excelentă!"</p>
-                    <h5 class="card-title mt-3">Alexandru Ionescu</h5>
-                    <p class="text-muted">Profesor de Istorie</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card h-100 testimonial-card">
-                <div class="card-body text-center">
-                    <div class="testimonial-avatar mb-3">
-                        <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Elena Dumitrescu" class="rounded-circle">
-                    </div>
-                    <div class="testimonial-rating mb-3">
-                        <i class="fas fa-star text-warning"></i>
-                        <i class="fas fa-star text-warning"></i>
-                        <i class="fas fa-star text-warning"></i>
-                        <i class="fas fa-star text-warning"></i>
-                        <i class="fas fa-star-half-alt text-warning"></i>
-                    </div>
-                    <p class="card-text">"Sunt o pasionată de istorie și Just Learn It History mi-a oferit exact ce căutam - o modalitate interactivă și angajantă de a învăța despre evenimente istorice importante. Conținutul este excelent!"</p>
-                    <h5 class="card-title mt-3">Elena Dumitrescu</h5>
-                    <p class="text-muted">Entuziastă de Istorie</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    
     <div class="row">
-        <div class="col-12 text-center">
-            <div class="cta-section p-5 rounded">
+        <div class="col-12">
+            <div class="card bg-primary text-white text-center p-5">
                 <h2 class="mb-4">Ești Gata să Începi Călătoria Ta în Istorie?</h2>
                 <p class="lead mb-4">Începe să înveți astăzi și descoperă lumea fascinantă a istoriei!</p>
                 <a href="{{ url_for('lessons') }}" class="btn btn-light btn-lg">
@@ -190,73 +119,43 @@
 
 {% block scripts %}
 <style>
-    .hero-section {
-        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-        color: white;
-        padding: 5rem 0;
-        margin-bottom: 3rem;
-    }
-    
-    .section-title {
-        position: relative;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-    }
-    
-    .section-title::after {
-        content: '';
-        position: absolute;
-        width: 80px;
-        height: 3px;
-        background-color: var(--primary-color);
-        bottom: 0;
-        left: 50%;
-        transform: translateX(-50%);
-    }
-    
     .feature-icon {
-        width: 80px;
-        height: 80px;
-        line-height: 80px;
-        text-align: center;
-        background-color: rgba(52, 152, 219, 0.1);
-        border-radius: 50%;
-        margin: 0 auto;
-    }
-    
-    .testimonial-avatar img {
-        width: 80px;
-        height: 80px;
-        object-fit: cover;
-        border: 3px solid var(--primary-color);
-    }
-    
-    .cta-section {
-        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-        color: white;
-    }
-    
-    .btn-outline-light {
-        border-width: 2px;
-    }
-    
-    .btn-outline-light:hover {
-        background-color: white;
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(37, 99, 235, 0.1);
+        border-radius: var(--border-radius);
         color: var(--primary-color);
     }
     
-    .just-learn-it {
-        color: #fff;
-        font-weight: 700;
+    .hero-section {
+        position: relative;
+        overflow: hidden;
     }
     
-    .history {
-        color: #f1c40f;
-        font-weight: 700;
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(30, 64, 175, 0.1));
+        clip-path: polygon(100% 0, 100% 100%, 0 100%, 100% 0);
+        z-index: 0;
     }
     
-    .bg-primary {
-        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+    .hero-section .container {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .hero-section img {
+        max-width: 100%;
+        height: auto;
+        filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
     }
 </style>
 {% endblock %}
