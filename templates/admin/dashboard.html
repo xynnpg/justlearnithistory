@@ -3,192 +3,158 @@
 {% block title %}Admin Dashboard - Just Learn It History{% endblock %}
 
 {% block content %}
-<div class="admin-dashboard">
-    <h1 class="text-center mb-4">Admin Dashboard</h1>
-    
-    <div class="row">
-        <!-- Users Section -->
-        <div class="col-md-4">
-            <div class="admin-card">
-                <h3>Users</h3>
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Username</th>
-                                <th>Email</th>
-                                <th>Admin</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for user in users %}
-                            <tr>
-                                <td>{{ user.username }}</td>
-                                <td>{{ user.email }}</td>
-                                <td>{{ "Yes" if user.is_admin else "No" }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                <button class="btn btn-primary mt-3">Add User</button>
-            </div>
-        </div>
-
-        <!-- Lessons Section -->
-        <div class="col-md-4">
-            <div class="admin-card">
-                <h3>Lessons</h3>
-                <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addLessonModal">
-                    Add Lesson
-                </button>
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Order</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for lesson in lessons %}
-                            <tr>
-                                <td>{{ lesson.title }}</td>
-                                <td>{{ lesson.order }}</td>
-                                <td>
-                                    <a href="{{ url_for('edit_lesson', id=lesson.id) }}" class="btn btn-sm btn-primary">Edit</a>
-                                    <form action="{{ url_for('delete_lesson', id=lesson.id) }}" method="POST" class="d-inline">
-                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tests Section -->
-        <div class="col-md-4">
-            <div class="admin-card">
-                <h3>Tests</h3>
-                <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addTestModal">
-                    Add Test
-                </button>
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Questions</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for test in tests %}
-                            <tr>
-                                <td>{{ test.title }}</td>
-                                <td>{{ test.get_questions()|length }}</td>
-                                <td>
-                                    <a href="{{ url_for('edit_test', id=test.id) }}" class="btn btn-sm btn-primary">Edit</a>
-                                    <form action="{{ url_for('delete_test', id=test.id) }}" method="POST" class="d-inline">
-                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 mb-3">Admin Dashboard</h1>
+            <p class="lead text-muted">Gestionează lecțiile și testele tale</p>
         </div>
     </div>
-</div>
 
-<!-- Add Lesson Modal -->
-<div class="modal fade" id="addLessonModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Add New Lesson</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form action="{{ url_for('add_lesson') }}" method="POST">
-                    {{ lesson_form.csrf_token }}
-                    <div class="mb-3">
-                        {{ lesson_form.title.label(class="form-label") }}
-                        {{ lesson_form.title(class="form-control") }}
+    <div class="row g-4">
+        <!-- Lessons Management -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="card-title h4 mb-0">
+                            <i class="fas fa-book me-2 text-primary"></i> Lecții
+                        </h2>
+                        <a href="{{ url_for('add_lesson') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i> Adaugă Lecție
+                        </a>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Content</label>
-                        <div id="lessonEditor"></div>
-                        {{ lesson_form.content }}
-                    </div>
-                    <div class="mb-3">
-                        {{ lesson_form.order.label(class="form-label") }}
-                        {{ lesson_form.order(class="form-control", type="number") }}
-                    </div>
-                    {{ lesson_form.submit(class="btn btn-primary") }}
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+                    {% if lessons %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Titlu</th>
+                                        <th>Ordine</th>
+                                        <th>Acțiuni</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for lesson in lessons %}
+                                    <tr>
+                                        <td>{{ lesson.title }}</td>
+                                        <td>{{ lesson.order }}</td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="{{ url_for('edit_lesson', id=lesson.id) }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteLessonModal{{ lesson.id }}">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
 
-<!-- Add Test Modal -->
-<div class="modal fade" id="addTestModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Add New Test</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form action="{{ url_for('add_test') }}" method="POST">
-                    {{ test_form.csrf_token }}
-                    <div class="mb-3">
-                        {{ test_form.title.label(class="form-label") }}
-                        {{ test_form.title(class="form-control") }}
-                    </div>
-                    <div id="questionsContainer">
-                        <div class="question-block mb-3 p-3 border rounded">
-                            <div class="mb-2">
-                                <label class="form-label">Question Type</label>
-                                <select class="form-select question-type" onchange="updateQuestionFields(this)">
-                                    <option value="multiple_choice">Multiple Choice</option>
-                                    <option value="true_false">True/False</option>
-                                    <option value="short_answer">Short Answer</option>
-                                </select>
-                            </div>
-                            <div class="mb-2">
-                                <label class="form-label">Question Text</label>
-                                <div class="question-editor"></div>
-                            </div>
-                            <div class="question-options">
-                                <div class="mb-2">
-                                    <input type="text" class="form-control" placeholder="Option 1">
-                                </div>
-                                <div class="mb-2">
-                                    <input type="text" class="form-control" placeholder="Option 2">
-                                </div>
-                            </div>
-                            <div class="mb-2">
-                                <label class="form-label">Correct Answer</label>
-                                <select class="form-select">
-                                    <option value="0">Option 1</option>
-                                    <option value="1">Option 2</option>
-                                </select>
-                            </div>
-                            <button type="button" class="btn btn-danger btn-sm" onclick="removeQuestion(this)">Remove Question</button>
+                                    <!-- Delete Lesson Modal -->
+                                    <div class="modal fade" id="deleteLessonModal{{ lesson.id }}" tabindex="-1" aria-labelledby="deleteLessonModalLabel{{ lesson.id }}" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="deleteLessonModalLabel{{ lesson.id }}">Confirmă Ștergerea</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Ești sigur că vrei să ștergi lecția "{{ lesson.title }}"?</p>
+                                                    <p class="text-danger"><small>Această acțiune nu poate fi anulată.</small></p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anulează</button>
+                                                    <form action="{{ url_for('delete_lesson', id=lesson.id) }}" method="POST" class="d-inline">
+                                                        <button type="submit" class="btn btn-danger">Șterge</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> Nu există lecții încă. Adaugă prima ta lecție!
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Tests Management -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="card-title h4 mb-0">
+                            <i class="fas fa-tasks me-2 text-primary"></i> Teste
+                        </h2>
+                        <a href="{{ url_for('add_test') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i> Adaugă Test
+                        </a>
                     </div>
-                    <button type="button" class="btn btn-secondary mb-3" onclick="addQuestion()">Add Question</button>
-                    {{ test_form.questions_json }}
-                    {{ test_form.submit(class="btn btn-primary") }}
-                </form>
+                    {% if tests %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Titlu</th>
+                                        <th>Ordine</th>
+                                        <th>Acțiuni</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for test in tests %}
+                                    <tr>
+                                        <td>{{ test.title }}</td>
+                                        <td>{{ test.order }}</td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="{{ url_for('edit_test', id=test.id) }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteTestModal{{ test.id }}">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Delete Test Modal -->
+                                    <div class="modal fade" id="deleteTestModal{{ test.id }}" tabindex="-1" aria-labelledby="deleteTestModalLabel{{ test.id }}" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="deleteTestModalLabel{{ test.id }}">Confirmă Ștergerea</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Ești sigur că vrei să ștergi testul "{{ test.title }}"?</p>
+                                                    <p class="text-danger"><small>Această acțiune nu poate fi anulată.</small></p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anulează</button>
+                                                    <form action="{{ url_for('delete_test', id=test.id) }}" method="POST" class="d-inline">
+                                                        <button type="submit" class="btn btn-danger">Șterge</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> Nu există teste încă. Adaugă primul tău test!
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -196,165 +162,18 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
-    // Initialize Quill for lesson content
-    var lessonQuill = new Quill('#lessonEditor', {
-        theme: 'snow',
-        modules: {
-            toolbar: [
-                [{ 'header': [1, 2, 3, false] }],
-                ['bold', 'italic', 'underline', 'strike'],
-                ['blockquote', 'code-block'],
-                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                [{ 'script': 'sub'}, { 'script': 'super' }],
-                [{ 'indent': '-1'}, { 'indent': '+1' }],
-                [{ 'color': [] }, { 'background': [] }],
-                ['link', 'image'],
-                ['clean']
-            ]
-        }
-    });
-
-    // Initialize Quill for existing questions
-    document.querySelectorAll('.question-editor').forEach(function(element) {
-        new Quill(element, {
-            theme: 'snow',
-            modules: {
-                toolbar: [
-                    ['bold', 'italic', 'underline'],
-                    ['link'],
-                    ['clean']
-                ]
-            }
-        });
-    });
-
-    // Update lesson content before submit
-    document.querySelector('#addLessonModal form').onsubmit = function() {
-        document.querySelector('#content').value = lessonQuill.root.innerHTML;
-        return true;
-    };
-
-    function addQuestion() {
-        const container = document.getElementById('questionsContainer');
-        const questionBlock = document.createElement('div');
-        questionBlock.className = 'question-block mb-3 p-3 border rounded';
-        questionBlock.innerHTML = `
-            <div class="mb-2">
-                <label class="form-label">Question Type</label>
-                <select class="form-select question-type" onchange="updateQuestionFields(this)">
-                    <option value="multiple_choice">Multiple Choice</option>
-                    <option value="true_false">True/False</option>
-                    <option value="short_answer">Short Answer</option>
-                </select>
-            </div>
-            <div class="mb-2">
-                <label class="form-label">Question Text</label>
-                <div class="question-editor"></div>
-            </div>
-            <div class="question-options">
-                <div class="mb-2">
-                    <input type="text" class="form-control" placeholder="Option 1">
-                </div>
-                <div class="mb-2">
-                    <input type="text" class="form-control" placeholder="Option 2">
-                </div>
-            </div>
-            <div class="mb-2">
-                <label class="form-label">Correct Answer</label>
-                <select class="form-select">
-                    <option value="0">Option 1</option>
-                    <option value="1">Option 2</option>
-                </select>
-            </div>
-            <button type="button" class="btn btn-danger btn-sm" onclick="removeQuestion(this)">Remove Question</button>
-        `;
-        container.appendChild(questionBlock);
-        
-        // Initialize Quill for the new question
-        new Quill(questionBlock.querySelector('.question-editor'), {
-            theme: 'snow',
-            modules: {
-                toolbar: [
-                    ['bold', 'italic', 'underline'],
-                    ['link'],
-                    ['clean']
-                ]
-            }
-        });
+<style>
+    .table th {
+        font-weight: 600;
+        color: var(--primary-color);
     }
-
-    function removeQuestion(button) {
-        button.closest('.question-block').remove();
+    
+    .btn-group .btn {
+        padding: 0.25rem 0.5rem;
     }
-
-    function updateQuestionFields(select) {
-        const questionBlock = select.closest('.question-block');
-        const optionsDiv = questionBlock.querySelector('.question-options');
-        const answerDiv = questionBlock.querySelector('.mb-2:last-of-type');
-        
-        if (select.value === 'multiple_choice') {
-            optionsDiv.innerHTML = `
-                <div class="mb-2">
-                    <input type="text" class="form-control" placeholder="Option 1">
-                </div>
-                <div class="mb-2">
-                    <input type="text" class="form-control" placeholder="Option 2">
-                </div>
-            `;
-            answerDiv.innerHTML = `
-                <label class="form-label">Correct Answer</label>
-                <select class="form-select">
-                    <option value="0">Option 1</option>
-                    <option value="1">Option 2</option>
-                </select>
-            `;
-        } else if (select.value === 'true_false') {
-            optionsDiv.innerHTML = '';
-            answerDiv.innerHTML = `
-                <label class="form-label">Correct Answer</label>
-                <select class="form-select">
-                    <option value="true">True</option>
-                    <option value="false">False</option>
-                </select>
-            `;
-        } else {
-            optionsDiv.innerHTML = '';
-            answerDiv.innerHTML = `
-                <label class="form-label">Correct Answer</label>
-                <input type="text" class="form-control">
-            `;
-        }
+    
+    .btn-group .btn i {
+        font-size: 0.875rem;
     }
-
-    // Update test questions before submit
-    document.querySelector('#addTestModal form').onsubmit = function() {
-        const questions = [];
-        document.querySelectorAll('.question-block').forEach(function(block) {
-            const type = block.querySelector('.question-type').value;
-            const text = block.querySelector('.ql-editor').innerHTML;
-            let options = [];
-            let correctAnswer;
-            
-            if (type === 'multiple_choice') {
-                options = Array.from(block.querySelectorAll('.question-options input')).map(input => input.value);
-                correctAnswer = parseInt(block.querySelector('.question-options + .mb-2 select').value);
-            } else if (type === 'true_false') {
-                correctAnswer = block.querySelector('.mb-2:last-of-type select').value;
-            } else {
-                correctAnswer = block.querySelector('.mb-2:last-of-type input').value;
-            }
-            
-            questions.push({
-                type: type,
-                text: text,
-                options: options,
-                correct_answer: correctAnswer
-            });
-        });
-        
-        document.querySelector('#questions_json').value = JSON.stringify(questions);
-        return true;
-    };
-</script>
+</style>
 {% endblock %} 

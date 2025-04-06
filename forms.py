@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, IntegerField, SubmitField, SelectField, HiddenField
-from wtforms.validators import DataRequired, Length
+from wtforms import StringField, TextAreaField, IntegerField, SubmitField, SelectField, HiddenField, PasswordField
+from wtforms.validators import DataRequired, Length, NumberRange
 
 class LessonForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired(), Length(min=3, max=200)])
@@ -10,5 +10,11 @@ class LessonForm(FlaskForm):
 
 class TestForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired(), Length(min=3, max=200)])
+    order = IntegerField('Order', validators=[DataRequired(), NumberRange(min=1)])
     questions_json = HiddenField('Questions JSON', validators=[DataRequired()])
-    submit = SubmitField('Save Test') 
+    submit = SubmitField('Save Test')
+
+class LoginForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Login') 

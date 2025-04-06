@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Editează Lecție - Just Learn It History{% endblock %}
+{% block title %}Adaugă Lecție - Just Learn It History{% endblock %}
 
 {% block content %}
 <div class="container py-5">
     <div class="row mb-5">
         <div class="col-12 text-center">
-            <h1 class="display-4 mb-3">Editează Lecția</h1>
-            <p class="lead text-muted">Modifică conținutul lecției existente</p>
+            <h1 class="display-4 mb-3">Adaugă Lecție Nouă</h1>
+            <p class="lead text-muted">Creează o lecție nouă cu conținut interactiv</p>
         </div>
     </div>
 
@@ -57,7 +57,7 @@
 
                         <div class="d-grid gap-2">
                             {{ form.submit(class="btn btn-primary btn-lg") }}
-                            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">Anulează</a>
+                            <a href="{{ url_for('admin') }}" class="btn btn-outline-secondary">Anulează</a>
                         </div>
                     </form>
                 </div>
@@ -88,9 +88,6 @@
             ]
         }
     });
-
-    // Set initial content
-    quill.root.innerHTML = document.querySelector('#content').value;
 
     // Update hidden input before form submission
     document.querySelector('form').onsubmit = function() {

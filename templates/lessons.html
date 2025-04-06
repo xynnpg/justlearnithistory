@@ -1,65 +1,65 @@
 {% extends "base.html" %}
 
-{% block title %}Lessons - Just Learn It History{% endblock %}
+{% block title %}Lecții - Just Learn It History{% endblock %}
 
 {% block content %}
-<div class="page-header text-center">
-    <div class="container">
-        <h1>History Lessons</h1>
-        <p class="lead">Explore our comprehensive collection of history lessons</p>
-    </div>
-</div>
-
 <div class="container py-5">
-    <div class="row">
-        <div class="col-md-12">
-            {% if lessons %}
-                <div class="row g-4">
-                    {% for lesson in lessons %}
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card h-100 lesson-card">
-                            <div class="card-body">
-                                <div class="lesson-icon mb-3">
-                                    <i class="fas fa-book-open fa-2x text-primary"></i>
-                                </div>
-                                <h3 class="card-title h4">{{ lesson.title }}</h3>
-                                <div class="lesson-preview mb-3">
-                                    {{ lesson.content[:150] | safe }}{% if lesson.content|length > 150 %}...{% endif %}
-                                </div>
-                                <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#lessonModal{{ lesson.id }}">
-                                    <i class="fas fa-eye me-2"></i> View Lesson
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Lesson Modal -->
-                    <div class="modal fade" id="lessonModal{{ lesson.id }}" tabindex="-1">
-                        <div class="modal-dialog modal-lg modal-dialog-scrollable">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">{{ lesson.title }}</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="lesson-content">
-                                        {{ lesson.content | safe }}
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="alert alert-info text-center">
-                    <i class="fas fa-info-circle me-2"></i> No lessons available yet. Please check back later.
-                </div>
-            {% endif %}
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 mb-3">Lecțiile Noastre</h1>
+            <p class="lead text-muted">Explorează evenimentele istorice importante prin lecții interactive și angajante</p>
         </div>
+    </div>
+
+    <div class="row g-4">
+        {% if lessons %}
+            {% for lesson in lessons %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 lesson-card">
+                    <div class="card-body">
+                        <div class="lesson-icon mb-3">
+                            <i class="fas fa-book fa-2x text-primary"></i>
+                        </div>
+                        <h3 class="card-title h4">{{ lesson.title }}</h3>
+                        <p class="card-text">
+                            <small class="text-muted">
+                                <i class="fas fa-sort-numeric-down me-1"></i> Ordine: {{ lesson.order }}
+                            </small>
+                        </p>
+                        <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#lessonModal{{ lesson.id }}">
+                            <i class="fas fa-book-open me-2"></i> Vezi Lecția
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lesson Modal -->
+            <div class="modal fade" id="lessonModal{{ lesson.id }}" tabindex="-1" aria-labelledby="lessonModalLabel{{ lesson.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="lessonModalLabel{{ lesson.id }}">{{ lesson.title }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="lesson-content">
+                                {{ lesson.content | safe }}
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Închide</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle me-2"></i> Nu există lecții disponibile încă. Te rugăm să verifici mai târziu.
+                </div>
+            </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
@@ -67,12 +67,11 @@
 {% block scripts %}
 <style>
     .lesson-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        transition: transform 0.3s ease-in-out;
     }
     
     .lesson-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
     }
     
     .lesson-icon {
@@ -82,53 +81,42 @@
         text-align: center;
         background-color: rgba(52, 152, 219, 0.1);
         border-radius: 50%;
+        margin: 0 auto;
     }
     
-    .lesson-preview {
-        color: #666;
-        font-size: 0.9rem;
-        line-height: 1.5;
-    }
-    
-    .lesson-content {
-        font-size: 1.1rem;
-        line-height: 1.8;
-    }
-    
-    .lesson-content img {
-        max-width: 100%;
-        height: auto;
-        border-radius: 8px;
-        margin: 1rem 0;
-    }
-    
-    .lesson-content h1, 
-    .lesson-content h2, 
-    .lesson-content h3, 
-    .lesson-content h4, 
-    .lesson-content h5, 
+    .lesson-content h1,
+    .lesson-content h2,
+    .lesson-content h3,
+    .lesson-content h4,
+    .lesson-content h5,
     .lesson-content h6 {
         margin-top: 1.5rem;
         margin-bottom: 1rem;
+        color: var(--primary-color);
     }
     
     .lesson-content p {
-        margin-bottom: 1.2rem;
+        margin-bottom: 1rem;
+        line-height: 1.6;
     }
     
-    .lesson-content ul, 
+    .lesson-content ul,
     .lesson-content ol {
-        margin-bottom: 1.2rem;
-        padding-left: 1.5rem;
+        margin-bottom: 1rem;
+        padding-left: 2rem;
+    }
+    
+    .lesson-content li {
+        margin-bottom: 0.5rem;
     }
     
     .lesson-content blockquote {
-        border-left: 4px solid var(--secondary-color);
+        border-left: 4px solid var(--primary-color);
         padding-left: 1rem;
         margin-left: 0;
-        margin-bottom: 1.2rem;
+        margin-bottom: 1rem;
         font-style: italic;
-        color: #555;
+        color: #666;
     }
 </style>
-{% endblock %} 
+{% endblock %}

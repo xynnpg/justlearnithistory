@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Editează Test - Just Learn It History{% endblock %}
+{% block title %}Adaugă Test - Just Learn It History{% endblock %}
 
 {% block content %}
 <div class="container py-5">
     <div class="row mb-5">
         <div class="col-12 text-center">
-            <h1 class="display-4 mb-3">Editează Test</h1>
-            <p class="lead text-muted">Modifică conținutul testului existent</p>
+            <h1 class="display-4 mb-3">Adaugă Test Nou</h1>
+            <p class="lead text-muted">Creează un test nou cu întrebări interactive</p>
         </div>
     </div>
 
@@ -67,20 +67,7 @@
 <script>
 let questions = [];
 
-// Load existing questions
-document.addEventListener('DOMContentLoaded', function() {
-    try {
-        questions = JSON.parse(document.getElementById('questions_json').value);
-        questions.forEach((question, index) => {
-            addQuestion(question);
-        });
-    } catch (e) {
-        console.error('Error loading questions:', e);
-        addQuestion(); // Add a default question if loading fails
-    }
-});
-
-function addQuestion(existingQuestion = null) {
+function addQuestion() {
     const questionTypes = {
         'multiple_choice': 'Alegere Multiplă',
         'true_false': 'Adevărat/Fals',
@@ -88,13 +75,6 @@ function addQuestion(existingQuestion = null) {
     };
     
     const questionIndex = questions.length;
-    const question = existingQuestion || {
-        type: 'multiple_choice',
-        text: '',
-        options: ['', ''],
-        correct_answer: ''
-    };
-    
     const questionHtml = `
         <div class="card mb-3" id="question-${questionIndex}">
             <div class="card-body">
@@ -109,7 +89,7 @@ function addQuestion(existingQuestion = null) {
                     <label class="form-label">Tip Întrebare</label>
                     <select class="form-select" onchange="updateQuestionType(${questionIndex}, this.value)">
                         ${Object.entries(questionTypes).map(([value, label]) => 
-                            `<option value="${value}" ${question.type === value ? 'selected' : ''}>${label}</option>`
+                            `<option value="${value}">${label}</option>`
                         ).join('')}
                     </select>
                 </div>
@@ -125,7 +105,7 @@ function addQuestion(existingQuestion = null) {
                 
                 <div class="mb-3">
                     <label class="form-label">Răspuns Corect</label>
-                    <input type="text" class="form-control" value="${question.correct_answer || ''}" onchange="updateCorrectAnswer(${questionIndex}, this.value)">
+                    <input type="text" class="form-control" onchange="updateCorrectAnswer(${questionIndex}, this.value)">
                 </div>
             </div>
         </div>
@@ -145,25 +125,25 @@ function addQuestion(existingQuestion = null) {
         }
     });
     
-    // Set the content
-    quill.root.innerHTML = question.text || '';
-    
     // Store the Quill instance
     if (!window.questionEditors) {
         window.questionEditors = {};
     }
     window.questionEditors[questionIndex] = quill;
     
-    // Add question to the array if it's new
-    if (!existingQuestion) {
-        questions.push(question);
-    }
+    // Add question to the array
+    questions.push({
+        type: 'multiple_choice',
+        text: '',
+        options: ['', ''],
+        correct_answer: ''
+    });
     
     // Update the hidden input
     updateQuestionsJson();
     
     // Add options for multiple choice
-    updateQuestionType(questionIndex, question.type);
+    updateQuestionType(questionIndex, 'multiple_choice');
 }
 
 function deleteQuestion(index) {
@@ -179,12 +159,10 @@ function updateQuestionType(index, type) {
     optionsContainer.innerHTML = '';
     
     if (type === 'multiple_choice') {
-        // Initialize options if they don't exist
-        if (!questions[index].options || questions[index].options.length === 0) {
-            questions[index].options = ['', ''];
-        }
+        // Add two default options
+        questions[index].options = ['', ''];
         
-        for (let i = 0; i < questions[index].options.length; i++) {
+        for (let i = 0; i < 2; i++) {
             const optionDiv = document.createElement('div');
             optionDiv.className = 'input-group mb-2';
             
@@ -228,21 +206,27 @@ function updateQuestionType(index, type) {
     updateQuestionsJson();
 }
 
-function updateCorrectAnswer(index, answer) {
-    questions[index].correct_answer = answer;
+function updateCorrectAnswer(index, value) {
+    questions[index].correct_answer = value;
     updateQuestionsJson();
 }
 
 function updateQuestionsJson() {
-    // Update the text content from Quill editors
+    // Update all question texts from Quill editors
     for (let i = 0; i < questions.length; i++) {
         if (window.questionEditors && window.questionEditors[i]) {
             questions[i].text = window.questionEditors[i].root.innerHTML;
         }
     }
     
+    // Update the hidden input
     document.getElementById('questions_json').value = JSON.stringify(questions);
 }
+
+// Initialize with one question
+document.addEventListener('DOMContentLoaded', function() {
+    addQuestion();
+});
 </script>
 {% endblock %}
 

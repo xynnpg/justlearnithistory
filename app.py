@@ -2,11 +2,14 @@ from flask import Flask, render_template, redirect, url_for, flash, request, jso
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from forms import LessonForm, TestForm
+from urllib.parse import urlparse as url_parse
+from forms import LessonForm, TestForm, LoginForm
 import os
 import json
 import datetime
 import sqlite3
+from datetime import timedelta
+from flask import session
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
@@ -34,6 +37,7 @@ class Lesson(db.Model):
 class Test(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
+    order = db.Column(db.Integer, nullable=False)
     questions_json = db.Column(db.Text, nullable=False)
     
     def get_questions(self):
@@ -71,12 +75,28 @@ def index():
 
 @app.route('/lessons')
 def lessons():
-    lessons = Lesson.query.order_by(Lesson.order).all()
+    # Get lessons ordered by order, avoiding created_at column
+    lessons = Lesson.query.with_entities(
+        Lesson.id, 
+        Lesson.title, 
+        Lesson.content, 
+        Lesson.order
+    ).order_by(Lesson.order).all()
     return render_template('lessons.html', lessons=lessons)
 
 @app.route('/tests')
 def tests():
-    tests = Test.query.all()
+    try:
+        tests = Test.query.all()
+    except Exception as e:
+        if 'no such column: test.order' in str(e):
+            # If the order column doesn't exist, recreate the database
+            print("Recreating database with correct schema...")
+            db.drop_all()
+            db.create_all()
+            tests = []
+        else:
+            raise e
     return render_template('tests.html', tests=tests)
 
 @app.route('/test/<int:test_id>/submit', methods=['POST'])
@@ -85,7 +105,7 @@ def submit_test(test_id):
     data = request.get_json()
     answers = data.get('answers', [])
     
-    questions = test.get_questions()
+    questions = json.loads(test.questions_json)
     correct_answers = 0
     total_questions = len(questions)
     
@@ -97,17 +117,50 @@ def submit_test(test_id):
             question = questions[question_index]
             correct_answer = question.get('correct_answer')
             
+            # Skip if either answer is None or empty
+            if user_answer is None or correct_answer is None:
+                continue
+                
             if question.get('type') == 'multiple_choice':
-                if str(user_answer) == str(correct_answer):
+                # For multiple choice, compare the string representations directly
+                if str(user_answer).strip() == str(correct_answer).strip():
                     correct_answers += 1
             elif question.get('type') == 'true_false':
-                if str(user_answer).lower() == str(correct_answer).lower():
+                # For true/false, normalize both answers
+                user_ans = str(user_answer).lower().strip()
+                correct_ans = str(correct_answer).lower().strip()
+                
+                # Handle common variations
+                if user_ans in ['true', 'adevarat', 'da'] and correct_ans in ['true', 'adevarat', 'da']:
+                    correct_answers += 1
+                elif user_ans in ['false', 'fals', 'nu'] and correct_ans in ['false', 'fals', 'nu']:
                     correct_answers += 1
             else:  # short answer
-                if str(user_answer).strip().lower() == str(correct_answer).strip().lower():
+                # For short answer, normalize both answers and do a more flexible comparison
+                user_ans = str(user_answer).lower().strip()
+                correct_ans = str(correct_answer).lower().strip()
+                
+                # Remove extra spaces and normalize
+                user_ans = ' '.join(user_ans.split())
+                correct_ans = ' '.join(correct_ans.split())
+                
+                if user_ans == correct_ans:
                     correct_answers += 1
     
+    # Calculate score as a percentage of correct answers
     score = (correct_answers / total_questions) * 100 if total_questions > 0 else 0
+    
+    # Save test result if user is logged in
+    if current_user.is_authenticated:
+        test_result = TestResult(
+            user_id=current_user.id,
+            test_id=test_id,
+            answers_json=json.dumps(answers),
+            score=score,
+            submitted_at=datetime.datetime.now()
+        )
+        db.session.add(test_result)
+        db.session.commit()
     
     return jsonify({
         'score': score,
@@ -122,8 +175,27 @@ def admin():
         flash('Access denied. Admin privileges required.')
         return redirect(url_for('index'))
     users = User.query.all()
-    lessons = Lesson.query.all()
-    tests = Test.query.all()
+    # Get lessons without created_at column
+    lessons = Lesson.query.with_entities(
+        Lesson.id, 
+        Lesson.title, 
+        Lesson.content, 
+        Lesson.order
+    ).order_by(Lesson.order).all()
+    
+    # Get tests without order column
+    try:
+        tests = Test.query.all()
+    except Exception as e:
+        if 'no such column: test.order' in str(e):
+            # If the order column doesn't exist, recreate the database
+            print("Recreating database with correct schema...")
+            db.drop_all()
+            db.create_all()
+            tests = []
+        else:
+            raise e
+    
     lesson_form = LessonForm()
     test_form = TestForm()
     return render_template('admin/dashboard.html', 
@@ -133,14 +205,14 @@ def admin():
                          lesson_form=lesson_form,
                          test_form=test_form)
 
-@app.route('/admin/lesson/add', methods=['POST'])
+@app.route('/admin/lesson/add', methods=['GET', 'POST'])
 @login_required
 def add_lesson():
     if not current_user.is_admin:
         return jsonify({'error': 'Access denied'}), 403
     
     form = LessonForm()
-    if form.validate_on_submit():
+    if request.method == 'POST' and form.validate_on_submit():
         try:
             lesson = Lesson(
                 title=form.title.data,
@@ -151,11 +223,13 @@ def add_lesson():
             db.session.add(lesson)
             db.session.commit()
             flash('Lesson added successfully!')
+            return redirect(url_for('admin'))
         except Exception as e:
             db.session.rollback()
             flash(f'Error adding lesson: {str(e)}')
             print(f"Error adding lesson: {e}")
-    return redirect(url_for('admin'))
+    
+    return render_template('admin/add_lesson.html', form=form)
 
 @app.route('/admin/lesson/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -163,8 +237,16 @@ def edit_lesson(id):
     if not current_user.is_admin:
         return jsonify({'error': 'Access denied'}), 403
     
-    lesson = Lesson.query.get_or_404(id)
+    # Get lesson without created_at column
+    lesson = Lesson.query.with_entities(
+        Lesson.id, 
+        Lesson.title, 
+        Lesson.content, 
+        Lesson.order
+    ).filter(Lesson.id == id).first_or_404()
+    
     if request.method == 'POST':
+        # Update lesson fields
         lesson.title = request.form.get('title')
         lesson.content = request.form.get('content')
         lesson.order = int(request.form.get('order'))
@@ -187,22 +269,25 @@ def delete_lesson(id):
     flash('Lesson deleted successfully!')
     return redirect(url_for('admin'))
 
-@app.route('/admin/test/add', methods=['POST'])
+@app.route('/admin/test/add', methods=['GET', 'POST'])
 @login_required
 def add_test():
     if not current_user.is_admin:
         return jsonify({'error': 'Access denied'}), 403
     
     form = TestForm()
-    if form.validate_on_submit():
+    if request.method == 'POST' and form.validate_on_submit():
         test = Test(
             title=form.title.data,
+            order=form.order.data,
             questions_json=form.questions_json.data
         )
         db.session.add(test)
         db.session.commit()
         flash('Test added successfully!')
-    return redirect(url_for('admin'))
+        return redirect(url_for('admin'))
+    
+    return render_template('admin/add_test.html', form=form)
 
 @app.route('/admin/test/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -213,6 +298,7 @@ def edit_test(id):
     test = Test.query.get_or_404(id)
     if request.method == 'POST':
         test.title = request.form.get('title')
+        test.order = int(request.form.get('order'))
         test.questions_json = request.form.get('questions_json')
         db.session.commit()
         flash('Test updated successfully!')
@@ -228,6 +314,11 @@ def delete_test(id):
         return jsonify({'error': 'Access denied'}), 403
     
     test = Test.query.get_or_404(id)
+    
+    # First delete all associated test results
+    TestResult.query.filter_by(test_id=id).delete()
+    
+    # Then delete the test
     db.session.delete(test)
     db.session.commit()
     flash('Test deleted successfully!')
@@ -235,13 +326,27 @@ def delete_test(id):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        user = User.query.filter_by(username=request.form.get('username')).first()
-        if user and check_password_hash(user.password_hash, request.form.get('password')):
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user and check_password_hash(user.password_hash, form.password.data):
             login_user(user)
-            return redirect(url_for('admin' if user.is_admin else 'index'))
+            # Set longer session duration for admin users
+            if user.is_admin:
+                session.permanent = True
+                app.permanent_session_lifetime = timedelta(days=30)  # 30 days for admin users
+            else:
+                session.permanent = True
+                app.permanent_session_lifetime = timedelta(days=7)  # 7 days for regular users
+            next_page = request.args.get('next')
+            if not next_page or url_parse(next_page).netloc != '':
+                next_page = url_for('index')
+            return redirect(next_page)
         flash('Invalid username or password')
-    return render_template('login.html')
+    return render_template('login.html', form=form)
 
 @app.route('/logout')
 @login_required
@@ -274,6 +379,26 @@ def init_db():
                 finally:
                     conn.close()
 
+@app.route('/lesson/<int:lesson_id>')
+def lesson(lesson_id):
+    # Get a specific lesson, avoiding created_at column
+    lesson = Lesson.query.with_entities(
+        Lesson.id, 
+        Lesson.title, 
+        Lesson.content, 
+        Lesson.order
+    ).filter(Lesson.id == lesson_id).first_or_404()
+    return render_template('lesson.html', lesson=lesson)
+
+@app.route('/test/<int:test_id>')
+def get_test(test_id):
+    test = Test.query.get_or_404(test_id)
+    return jsonify({
+        'id': test.id,
+        'title': test.title,
+        'questions': test.questions_json
+    })
+
 if __name__ == '__main__':
     init_db()
-    app.run(debug=True) 
+    app.run(debug=True)
