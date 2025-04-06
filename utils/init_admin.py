@@ -5,19 +5,19 @@ from utils.credentials import get_admin_credentials
 def init_admin_user():
     """Initialize or update the admin user with credentials from the file."""
     with app.app_context():
-        # Get current admin credentials
+
         username, password = get_admin_credentials()
         
-        # Check if admin user exists
+
         admin = User.query.filter_by(is_admin=True).first()
         
         if admin:
-            # Update existing admin
+
             admin.username = username
             admin.password_hash = generate_password_hash(password)
             admin.email = f"{username}@justlearnit.com"
         else:
-            # Create new admin user
+
             admin = User(
                 username=username,
                 email=f"{username}@justlearnit.com",
