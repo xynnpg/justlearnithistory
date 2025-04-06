@@ -4,23 +4,22 @@
 
 {% block content %}
 <div class="hero-section">
+    <div class="animated-bg"></div>
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <h1 class="display-4 fw-bold mb-4">Învață Istoria într-un Mod Interactiv</h1>
-                <p class="lead mb-4 text-muted">Descoperă evenimentele istorice importante prin lecții interactive și teste practice. Just Learn It History face învățarea istoriei distractivă și angajantă.</p>
-                <div class="d-flex gap-3">
-                    <a href="{{ url_for('lessons') }}" class="btn btn-primary btn-lg">
+                <h1 class="display-4 fw-bold mb-4 reveal">Învață Istoria într-un Mod Interactiv</h1>
+                <p class="lead mb-4 text-muted reveal">Descoperă evenimentele istorice importante prin lecții interactive și teste practice. Just Learn It History face învățarea istoriei distractivă și angajantă.</p>
+                <div class="d-flex gap-3 reveal">
+                    <a href="{{ url_for('lessons') }}" class="btn btn-primary btn-lg pulse-animation">
                         <i class="fas fa-book-open me-2"></i> Începe Lecțiile
                     </a>
-                    <a href="{{ url_for('tests') }}" class="btn btn-outline-primary btn-lg">
+                    <a href="{{ url_for('tests') }}" class="btn btn-outline-dark btn-lg">
                         <i class="fas fa-tasks me-2"></i> Fă Teste
                     </a>
                 </div>
             </div>
-            <div class="col-lg-6 d-none d-lg-block">
-                <img src="https://illustrations.popsy.co/white/student-taking-online-course.svg" alt="Learning Illustration" class="img-fluid">
-            </div>
+
         </div>
     </div>
 </div>
@@ -28,14 +27,14 @@
 <div class="container py-5">
     <div class="row mb-5">
         <div class="col-12 text-center">
-            <h2 class="section-title">De ce să înveți cu noi?</h2>
-            <p class="lead text-muted">Oferim o experiență de învățare unică și angajantă</p>
+            <h2 class="section-title reveal">De ce să înveți cu noi?</h2>
+            <p class="lead text-muted reveal">Oferim o experiență de învățare unică și angajantă</p>
         </div>
     </div>
     
     <div class="row g-4 mb-5">
         <div class="col-md-4">
-            <div class="feature-card">
+            <div class="feature-card stagger-animation">
                 <div class="card-body text-center">
                     <i class="fas fa-book-open mb-4"></i>
                     <h3 class="h4 mb-3">Lecții Interactive</h3>
@@ -44,7 +43,7 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="feature-card">
+            <div class="feature-card stagger-animation">
                 <div class="card-body text-center">
                     <i class="fas fa-tasks mb-4"></i>
                     <h3 class="h4 mb-3">Teste Practice</h3>
@@ -53,7 +52,7 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="feature-card">
+            <div class="feature-card stagger-animation">
                 <div class="card-body text-center">
                     <i class="fas fa-unlock mb-4"></i>
                     <h3 class="h4 mb-3">Fără Autentificare</h3>
@@ -65,8 +64,8 @@
     
     <div class="row mb-5">
         <div class="col-12 text-center">
-            <h2 class="section-title">Lecții Recente</h2>
-            <p class="lead text-muted">Explorează cele mai noi lecții adăugate</p>
+            <h2 class="section-title reveal">Lecții Recente</h2>
+            <p class="lead text-muted reveal">Explorează cele mai noi lecții adăugate</p>
         </div>
     </div>
     
@@ -74,7 +73,7 @@
         {% if latest_lessons %}
             {% for lesson in latest_lessons %}
             <div class="col-md-4">
-                <div class="card h-100">
+                <div class="card h-100 stagger-animation">
                     <div class="card-body">
                         <div class="d-flex align-items-center mb-3">
                             <div class="feature-icon me-3">
@@ -96,7 +95,7 @@
             {% endfor %}
         {% else %}
             <div class="col-12">
-                <div class="alert alert-info text-center">
+                <div class="alert alert-info text-center reveal">
                     <i class="fas fa-info-circle me-2"></i> Nu există lecții disponibile încă. Te rugăm să verifici mai târziu.
                 </div>
             </div>
@@ -105,10 +104,10 @@
     
     <div class="row">
         <div class="col-12">
-            <div class="card bg-primary text-white text-center p-5">
+            <div class="card bg-dark text-white text-center p-5 reveal">
                 <h2 class="mb-4">Ești Gata să Începi Călătoria Ta în Istorie?</h2>
                 <p class="lead mb-4">Începe să înveți astăzi și descoperă lumea fascinantă a istoriei!</p>
-                <a href="{{ url_for('lessons') }}" class="btn btn-light btn-lg">
+                <a href="{{ url_for('lessons') }}" class="btn btn-light btn-lg pulse-animation">
                     <i class="fas fa-arrow-right me-2"></i> Începe Acum
                 </a>
             </div>
@@ -125,9 +124,16 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: rgba(37, 99, 235, 0.1);
+        background-color: rgba(15, 23, 42, 0.05);
         border-radius: var(--border-radius);
-        color: var(--primary-color);
+        color: var(--dark-color);
+        transition: var(--transition);
+    }
+    
+    .feature-icon:hover {
+        transform: scale(1.1);
+        background-color: var(--accent-color);
+        color: white;
     }
     
     .hero-section {
@@ -142,7 +148,7 @@
         right: 0;
         width: 100%;
         height: 100%;
-        background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(30, 64, 175, 0.1));
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.02), rgba(59, 130, 246, 0.02));
         clip-path: polygon(100% 0, 100% 100%, 0 100%, 100% 0);
         z-index: 0;
     }
@@ -156,6 +162,85 @@
         max-width: 100%;
         height: auto;
         filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
+    }
+    
+    .btn-outline-dark {
+        border-width: 2px;
+    }
+    
+    .btn-outline-dark:hover {
+        background-color: var(--dark-color);
+        color: white;
+    }
+    
+    .card.bg-dark {
+        background: linear-gradient(135deg, var(--dark-color), var(--secondary-color)) !important;
+    }
+    
+    .card.bg-dark::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+        transform: translateX(-100%);
+        transition: var(--transition);
+    }
+    
+    .card.bg-dark:hover::before {
+        transform: translateX(100%);
+    }
+    
+    /* Enhanced animations for feature cards */
+    .feature-card {
+        transform-origin: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px) scale(1.02);
+    }
+    
+    .feature-card i {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .feature-card:hover i {
+        transform: scale(1.2) rotate(5deg);
+    }
+    
+    /* Enhanced button animations */
+    .btn {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transform: translateX(-100%);
+        transition: transform 0.6s;
+    }
+    
+    .btn:hover::after {
+        transform: translateX(100%);
+    }
+    
+    /* Enhanced card animations */
+    .card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 20px -10px rgba(0, 0, 0, 0.15);
     }
 </style>
 {% endblock %}
