@@ -176,6 +176,9 @@
                 answerContainer.appendChild(optionDiv);
             });
         } else if (question.type === 'true_false') {
+            const optionsContainer = document.createElement('div');
+            optionsContainer.className = 'true-false-options';
+            
             ['Adevărat', 'Fals'].forEach((option, optionIndex) => {
                 const optionDiv = document.createElement('div');
                 optionDiv.className = 'form-check mb-2';
@@ -184,7 +187,7 @@
                 input.type = 'radio';
                 input.className = 'form-check-input';
                 input.name = `question-${index}`;
-                input.id = `option-${optionIndex}`;
+                input.id = `option-${index}-${optionIndex}`;
                 input.value = option.toLowerCase();
                 input.checked = userAnswers[index] === option.toLowerCase();
                 input.onchange = () => {
@@ -193,13 +196,15 @@
                 
                 const label = document.createElement('label');
                 label.className = 'form-check-label';
-                label.htmlFor = `option-${optionIndex}`;
+                label.htmlFor = `option-${index}-${optionIndex}`;
                 label.textContent = option;
                 
                 optionDiv.appendChild(input);
                 optionDiv.appendChild(label);
-                answerContainer.appendChild(optionDiv);
+                optionsContainer.appendChild(optionDiv);
             });
+            
+            answerContainer.appendChild(optionsContainer);
         } else {  // short answer
             const input = document.createElement('input');
             input.type = 'text';
@@ -348,6 +353,42 @@
         padding: 1rem;
         background-color: #f8f9fa;
         border-radius: 0.5rem;
+    }
+
+    .true-false-options {
+        display: flex;
+        gap: 2rem;
+        justify-content: center;
+        padding: 1rem 0;
+    }
+
+    .true-false-options .form-check {
+        padding: 1rem 2rem;
+        border-radius: 0.5rem;
+        background-color: white;
+        border: 1px solid #dee2e6;
+        transition: all 0.2s ease;
+        margin: 0;
+        min-width: 150px;
+        text-align: center;
+    }
+
+    .true-false-options .form-check:hover {
+        background-color: #e9ecef;
+        transform: translateY(-2px);
+    }
+
+    .true-false-options .form-check-input {
+        margin-right: 0.75rem;
+    }
+
+    .true-false-options .form-check-label {
+        font-weight: 500;
+        cursor: pointer;
+    }
+
+    .true-false-options .form-check-input:checked ~ .form-check-label {
+        color: var(--primary-color);
     }
 </style>
 {% endblock %} 
