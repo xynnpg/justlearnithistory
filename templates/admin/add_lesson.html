@@ -33,14 +33,7 @@
                         <div class="mb-3">
                             {{ form.content.label(class="form-label") }}
                             <div id="editor"></div>
-                            {{ form.content }}
-                            {% if form.content.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.content.errors %}
-                                        {{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
+                            <input type="hidden" id="content" name="content">
                         </div>
 
                         <div class="mb-3">

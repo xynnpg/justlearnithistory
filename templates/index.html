@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Acasă - Just Learn It History{% endblock %}
+{% block title %}Home - Just Learn It History{% endblock %}
 
 {% block content %}
 <div class="hero-section">
@@ -8,18 +8,14 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <h1 class="display-4 fw-bold mb-4 reveal">Învață Istoria într-un Mod Interactiv</h1>
-                <p class="lead mb-4 text-muted reveal">Descoperă evenimentele istorice importante prin lecții interactive și teste practice. Just Learn It History face învățarea istoriei distractivă și angajantă.</p>
+                <h1 class="display-4 fw-bold mb-4 reveal">Learn History in an Interactive Way</h1>
+                <p class="lead mb-4 text-muted reveal">Discover important historical events through interactive lessons. Just Learn It History makes learning history fun and engaging.</p>
                 <div class="d-flex gap-3 reveal">
                     <a href="{{ url_for('lessons') }}" class="btn btn-primary btn-lg pulse-animation">
-                        <i class="fas fa-book-open me-2"></i> Începe Lecțiile
-                    </a>
-                    <a href="{{ url_for('tests') }}" class="btn btn-outline-dark btn-lg">
-                        <i class="fas fa-tasks me-2"></i> Fă Teste
+                        <i class="fas fa-book-open me-2"></i> Start Learning
                     </a>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
@@ -27,36 +23,27 @@
 <div class="container py-5">
     <div class="row mb-5">
         <div class="col-12 text-center">
-            <h2 class="section-title reveal">De ce să înveți cu noi?</h2>
-            <p class="lead text-muted reveal">Oferim o experiență de învățare unică și angajantă</p>
+            <h2 class="section-title reveal">Why Learn With Us?</h2>
+            <p class="lead text-muted reveal">We offer a unique and engaging learning experience</p>
         </div>
     </div>
     
     <div class="row g-4 mb-5">
-        <div class="col-md-4">
+        <div class="col-md-6">
             <div class="feature-card stagger-animation">
                 <div class="card-body text-center">
                     <i class="fas fa-book-open mb-4"></i>
-                    <h3 class="h4 mb-3">Lecții Interactive</h3>
-                    <p class="text-muted mb-0">Explorează evenimente istorice importante prin lecții bine structurate și conținut bogat.</p>
+                    <h3 class="h4 mb-3">Interactive Lessons</h3>
+                    <p class="text-muted mb-0">Explore important historical events through well-structured lessons and rich content.</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="feature-card stagger-animation">
-                <div class="card-body text-center">
-                    <i class="fas fa-tasks mb-4"></i>
-                    <h3 class="h4 mb-3">Teste Practice</h3>
-                    <p class="text-muted mb-0">Verifică-ți cunoștințele cu teste interactive care acoperă diverse perioade istorice.</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
+        <div class="col-md-6">
             <div class="feature-card stagger-animation">
                 <div class="card-body text-center">
                     <i class="fas fa-unlock mb-4"></i>
-                    <h3 class="h4 mb-3">Fără Autentificare</h3>
-                    <p class="text-muted mb-0">Nu este necesară crearea unui cont pentru a accesa lecțiile și testele.</p>
+                    <h3 class="h4 mb-3">No Authentication Required</h3>
+                    <p class="text-muted mb-0">No account creation is needed to access the lessons.</p>
                 </div>
             </div>
         </div>
@@ -64,8 +51,8 @@
     
     <div class="row mb-5">
         <div class="col-12 text-center">
-            <h2 class="section-title reveal">Lecții Recente</h2>
-            <p class="lead text-muted reveal">Explorează cele mai noi lecții adăugate</p>
+            <h2 class="section-title reveal">Recent Lessons</h2>
+            <p class="lead text-muted reveal">Explore the newest lessons added</p>
         </div>
     </div>
     
@@ -83,11 +70,11 @@
                         </div>
                         <p class="text-muted mb-3">
                             <small>
-                                <i class="fas fa-sort-numeric-down me-1"></i> Ordine: {{ lesson.order }}
+                                <i class="fas fa-sort-numeric-down me-1"></i> Order: {{ lesson.order }}
                             </small>
                         </p>
                         <a href="{{ url_for('lesson', lesson_id=lesson.id) }}" class="btn btn-primary w-100">
-                            <i class="fas fa-book-open me-2"></i> Vezi Lecția
+                            <i class="fas fa-book-open me-2"></i> View Lesson
                         </a>
                     </div>
                 </div>
@@ -96,7 +83,7 @@
         {% else %}
             <div class="col-12">
                 <div class="alert alert-info text-center reveal">
-                    <i class="fas fa-info-circle me-2"></i> Nu există lecții disponibile încă. Te rugăm să verifici mai târziu.
+                    <i class="fas fa-info-circle me-2"></i> No lessons available yet. Please check back later.
                 </div>
             </div>
         {% endif %}
@@ -105,10 +92,10 @@
     <div class="row">
         <div class="col-12">
             <div class="card bg-dark text-white text-center p-5 reveal">
-                <h2 class="mb-4">Ești Gata să Începi Călătoria Ta în Istorie?</h2>
-                <p class="lead mb-4">Începe să înveți astăzi și descoperă lumea fascinantă a istoriei!</p>
+                <h2 class="mb-4">Ready to Start Your History Journey?</h2>
+                <p class="lead mb-4">Start learning today and discover the fascinating world of history!</p>
                 <a href="{{ url_for('lessons') }}" class="btn btn-light btn-lg pulse-animation">
-                    <i class="fas fa-arrow-right me-2"></i> Începe Acum
+                    <i class="fas fa-arrow-right me-2"></i> Start Now
                 </a>
             </div>
         </div>
