@@ -10,14 +10,26 @@ import datetime
 import sqlite3
 from datetime import timedelta
 from flask import session
+from werkzeug.utils import secure_filename
+from fuzzywuzzy import fuzz
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///justlearnit.db'
+app.config['UPLOAD_FOLDER'] = 'static/images'
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+# Create upload folder if it doesn't exist
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -97,67 +109,66 @@ def tests():
             raise e
     return render_template('tests.html', tests=tests)
 
-@app.route('/test/<int:test_id>/submit', methods=['POST'])
+@app.route('/submit_test/<int:test_id>', methods=['POST'])
+@login_required
 def submit_test(test_id):
     test = Test.query.get_or_404(test_id)
-    data = request.get_json()
-    answers = data.get('answers', [])
-
     questions = json.loads(test.questions_json)
-    correct_answers = 0
+    data = request.get_json()
+    answers = {str(i): answer['answer'] for i, answer in enumerate(data['answers'])}
+    
+    print("Questions:", questions)  # Debug print
+    print("User answers:", answers)  # Debug print
+    
+    score = 0
     total_questions = len(questions)
-
-    for answer in answers:
-        question_index = answer.get('questionIndex')
-        user_answer = answer.get('answer')
-
-        if question_index < len(questions):
-            question = questions[question_index]
-            correct_answer = question.get('correct_answer')
-
-            if user_answer is None or correct_answer is None:
-                continue
-
-            if question.get('type') == 'multiple_choice':
-
-                if str(user_answer).strip() == str(correct_answer).strip():
-                    correct_answers += 1
-            elif question.get('type') == 'true_false':
-
-                user_ans = str(user_answer).lower().strip()
-                correct_ans = str(correct_answer).lower().strip()
-
-                if user_ans in ['true', 'adevarat', 'da'] and correct_ans in ['true', 'adevarat', 'da']:
-                    correct_answers += 1
-                elif user_ans in ['false', 'fals', 'nu'] and correct_ans in ['false', 'fals', 'nu']:
-                    correct_answers += 1
-            else:  
-
-                user_ans = str(user_answer).lower().strip()
-                correct_ans = str(correct_answer).lower().strip()
-
-                user_ans = ' '.join(user_ans.split())
-                correct_ans = ' '.join(correct_ans.split())
-
-                if user_ans == correct_ans:
-                    correct_answers += 1
-
-    score = (correct_answers / total_questions) * 100 if total_questions > 0 else 0
-
-    if current_user.is_authenticated:
-        test_result = TestResult(
-            user_id=current_user.id,
-            test_id=test_id,
-            answers_json=json.dumps(answers),
-            score=score,
-            submitted_at=datetime.datetime.now()
-        )
-        db.session.add(test_result)
-        db.session.commit()
-
+    correct_answers = []
+    
+    for i, question in enumerate(questions):
+        user_answer = answers.get(str(i), '').strip()
+        
+        print(f"Question {i}:")  # Debug print
+        print(f"User answer: '{user_answer}'")  # Debug print
+        print(f"Correct answer: '{question['correct_answer']}'")  # Debug print
+        
+        if question['type'] == 'multiple_choice':
+            # For multiple choice, compare the exact answer
+            is_correct = user_answer == question['correct_answer']
+        elif question['type'] == 'true_false':
+            # For true/false, compare the exact answer
+            is_correct = user_answer == question['correct_answer']
+        else:
+            # For short answer, use fuzzy matching
+            is_correct = fuzz.ratio(user_answer, question['correct_answer']) >= 80
+        
+        print(f"Is correct: {is_correct}")  # Debug print
+        
+        if is_correct:
+            score += 1
+        
+        correct_answers.append({
+            'question': question['text'],
+            'user_answer': user_answer,
+            'correct_answer': question['correct_answer'],
+            'is_correct': is_correct
+        })
+    
+    percentage = (score / total_questions) * 100 if total_questions > 0 else 0
+    
+    test_result = TestResult(
+        user_id=current_user.id,
+        test_id=test_id,
+        answers_json=json.dumps(correct_answers),
+        score=percentage,
+        submitted_at=datetime.datetime.now()
+    )
+    
+    db.session.add(test_result)
+    db.session.commit()
+    
     return jsonify({
-        'score': score,
-        'correct_answers': correct_answers,
+        'score': percentage,
+        'correct_answers': score,
         'total_questions': total_questions
     })
 
@@ -386,6 +397,28 @@ def get_test(test_id):
         'title': test.title,
         'questions': test.questions_json
     })
+
+@app.route('/upload-image', methods=['POST'])
+@login_required
+def upload_image():
+    if not current_user.is_admin:
+        return jsonify({'error': 'Access denied'}), 403
+        
+    if 'image' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+        
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+        
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        # Add timestamp to filename to prevent duplicates
+        filename = f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_{filename}"
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        return jsonify({'url': url_for('static', filename=f'images/{filename}')})
+        
+    return jsonify({'error': 'Invalid file type'}), 400
 
 if __name__ == '__main__':
     init_db()

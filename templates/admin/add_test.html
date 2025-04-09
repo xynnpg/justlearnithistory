@@ -8,7 +8,7 @@
         <div class="col-md-8">
             <div class="card shadow-sm mb-4">
                 <div class="card-body">
-                    <form method="POST">
+                    <form method="POST" action="{{ url_for('add_test') }}">
                         {{ form.csrf_token }}
                         
                         <div class="mb-4">
@@ -104,10 +104,7 @@ function addQuestion(existingQuestion = null) {
                 <label class="form-label fw-bold">
                     <i class="fas fa-check-circle text-success me-2"></i>Răspuns Corect
                 </label>
-                <input type="text" class="form-control" 
-                       value="${question.correct_answer || ''}" 
-                       onchange="updateCorrectAnswer(${questionIndex}, this.value)"
-                       placeholder="Introduceți răspunsul corect">
+                <div id="correct-answer-${questionIndex}"></div>
             </div>
         </div>
     `;
@@ -115,32 +112,72 @@ function addQuestion(existingQuestion = null) {
     card.innerHTML = cardHtml;
     document.getElementById('questions-container').appendChild(card);
     
-    // Initialize Quill
+    // Initialize Quill editor for the question
     const quill = new Quill(`#question-editor-${questionIndex}`, {
         theme: 'snow',
-        placeholder: 'Introduceți textul întrebării...',
         modules: {
-            toolbar: [
-                ['bold', 'italic', 'underline'],
-                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                ['link', 'image'],
-                ['clean']
-            ]
+            toolbar: {
+                container: [
+                    ['bold', 'italic', 'underline'],
+                    ['link', 'image'],
+                    ['clean']
+                ],
+                handlers: {
+                    'image': function() {
+                        var input = document.createElement('input');
+                        input.setAttribute('type', 'file');
+                        input.setAttribute('accept', 'image/*');
+                        input.click();
+                        
+                        input.onchange = function() {
+                            var file = input.files[0];
+                            if (file) {
+                                var formData = new FormData();
+                                formData.append('image', file);
+                                
+                                fetch('/upload-image', {
+                                    method: 'POST',
+                                    body: formData,
+                                    credentials: 'same-origin'
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.url) {
+                                        var range = quill.getSelection();
+                                        quill.insertEmbed(range.index, 'image', data.url);
+                                    } else {
+                                        console.error('Upload failed:', data.error);
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                });
+                            }
+                        };
+                    }
+                }
+            }
         }
     });
     
-    if (question.text) {
+    // Set initial content if editing existing question
+    if (existingQuestion) {
         quill.root.innerHTML = question.text;
     }
     
+    // Store the Quill instance
     questionEditors[questionIndex] = quill;
     
+    // Add question to the array if it's new
     if (!existingQuestion) {
         questions.push(question);
     }
     
-    updateQuestionType(questionIndex, question.type);
+    // Update the hidden input
     updateQuestionsJson();
+    
+    // Add options for multiple choice
+    updateQuestionType(questionIndex, question.type);
 }
 
 function updateQuestionType(index, type) {
@@ -149,127 +186,37 @@ function updateQuestionType(index, type) {
     optionsContainer.innerHTML = '';
     
     if (type === 'multiple_choice') {
-        if (!questions[index].options || questions[index].options.length < 2) {
+        if (!questions[index].options || questions[index].options.length === 0) {
             questions[index].options = ['', ''];
         }
         
-        const optionsHtml = `
-            <label class="form-label fw-bold mb-3">
-                <i class="fas fa-list-ul text-primary me-2"></i>Opțiuni
-            </label>
-            <div class="options-list"></div>
-            <button type="button" class="btn btn-outline-primary btn-sm mt-3" onclick="addOption(${index})">
-                <i class="fas fa-plus me-2"></i>Adaugă Opțiune
-            </button>
-        `;
-        
-        optionsContainer.innerHTML = optionsHtml;
-        
-        questions[index].options.forEach((option, optionIndex) => {
-            addOptionInput(index, option, optionIndex);
+        questions[index].options.forEach((option, i) => {
+            const optionDiv = document.createElement('div');
+            optionDiv.className = 'input-group mb-2';
+            
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'form-control';
+            input.value = option;
+            input.onchange = (e) => {
+                questions[index].options[i] = e.target.value;
+                updateQuestionsJson();
+            };
+            
+            const correctInput = document.createElement('input');
+            correctInput.type = 'radio';
+            correctInput.name = `correct-${index}`;
+            correctInput.checked = questions[index].correct_answer === option;
+            correctInput.onchange = () => {
+                questions[index].correct_answer = option;
+                updateQuestionsJson();
+            };
+            
+            optionDiv.appendChild(correctInput);
+            optionDiv.appendChild(input);
+            optionsContainer.appendChild(optionDiv);
         });
-
-        // Show correct answer input
-        document.querySelector(`#question-${index} .correct-answer-container`).style.display = 'block';
-    } else if (type === 'true_false') {
-        // For true/false questions, create radio buttons
-        const optionsHtml = `
-            <label class="form-label fw-bold mb-3">
-                <i class="fas fa-toggle-on text-primary me-2"></i>Opțiuni
-            </label>
-            <div class="true-false-options">
-                <div class="form-check mb-2">
-                    <input class="form-check-input" type="radio" name="correct-${index}" id="true-${index}" 
-                           value="adevarat" onchange="updateTrueFalseAnswer(${index}, 'adevarat')"
-                           ${questions[index].correct_answer === 'adevarat' ? 'checked' : ''}>
-                    <label class="form-check-label" for="true-${index}">
-                        Adevărat
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="correct-${index}" id="false-${index}" 
-                           value="fals" onchange="updateTrueFalseAnswer(${index}, 'fals')"
-                           ${questions[index].correct_answer === 'fals' ? 'checked' : ''}>
-                    <label class="form-check-label" for="false-${index}">
-                        Fals
-                    </label>
-                </div>
-            </div>
-        `;
-        
-        optionsContainer.innerHTML = optionsHtml;
-        
-        // Hide the correct answer input for true/false questions
-        document.querySelector(`#question-${index} .correct-answer-container`).style.display = 'none';
-    } else {
-        // For short answer questions
-        // Show correct answer input
-        document.querySelector(`#question-${index} .correct-answer-container`).style.display = 'block';
     }
-    
-    updateQuestionsJson();
-}
-
-function addOption(questionIndex) {
-    questions[questionIndex].options.push('');
-    addOptionInput(questionIndex, '', questions[questionIndex].options.length - 1);
-    updateQuestionsJson();
-}
-
-function addOptionInput(questionIndex, value, optionIndex) {
-    const optionsList = document.querySelector(`#options-${questionIndex} .options-list`);
-    const optionDiv = document.createElement('div');
-    optionDiv.className = 'input-group mb-2';
-    
-    const optionHtml = `
-        <span class="input-group-text bg-light">
-            <i class="fas fa-circle-dot text-primary"></i>
-        </span>
-        <input type="text" class="form-control" 
-               placeholder="Opțiunea ${optionIndex + 1}"
-               value="${value}"
-               onchange="updateOption(${questionIndex}, ${optionIndex}, this.value)">
-        <button type="button" class="btn btn-outline-danger" onclick="removeOption(${questionIndex}, ${optionIndex})">
-            <i class="fas fa-times"></i>
-        </button>
-    `;
-    
-    optionDiv.innerHTML = optionHtml;
-    optionsList.appendChild(optionDiv);
-}
-
-function updateOption(questionIndex, optionIndex, value) {
-    questions[questionIndex].options[optionIndex] = value;
-    updateQuestionsJson();
-}
-
-function removeOption(questionIndex, optionIndex) {
-    if (questions[questionIndex].options.length > 2) {
-        questions[questionIndex].options.splice(optionIndex, 1);
-        updateQuestionType(questionIndex, 'multiple_choice');
-    } else {
-        alert('Trebuie să existe cel puțin două opțiuni!');
-    }
-}
-
-function deleteQuestion(index) {
-    document.getElementById(`question-${index}`).remove();
-    questions.splice(index, 1);
-    delete questionEditors[index];
-    
-    // Rerender all questions to update indices
-    document.getElementById('questions-container').innerHTML = '';
-    questions.forEach((q, i) => addQuestion(q));
-    updateQuestionsJson();
-}
-
-function updateCorrectAnswer(index, value) {
-    questions[index].correct_answer = value;
-    updateQuestionsJson();
-}
-
-function updateTrueFalseAnswer(index, value) {
-    questions[index].correct_answer = value;
     updateQuestionsJson();
 }
 
@@ -284,6 +231,17 @@ function updateQuestionsJson() {
     document.getElementById('questions_json').value = JSON.stringify(questions);
 }
 
+function deleteQuestion(index) {
+    document.getElementById(`question-${index}`).remove();
+    questions.splice(index, 1);
+    delete questionEditors[index];
+    
+    // Rerender all questions to update indices
+    document.getElementById('questions-container').innerHTML = '';
+    questions.forEach((q, i) => addQuestion(q));
+    updateQuestionsJson();
+}
+
 function submitForm() {
     updateQuestionsJson();
     if (questions.length === 0) {
@@ -294,9 +252,7 @@ function submitForm() {
 }
 
 // Initialize with one question
-document.addEventListener('DOMContentLoaded', function() {
-    addQuestion();
-});
+addQuestion();
 </script>
 {% endblock %}
 

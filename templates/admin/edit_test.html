@@ -125,7 +125,7 @@ function addQuestion(existingQuestion = null) {
                 
                 <div class="mb-3">
                     <label class="form-label">Răspuns Corect</label>
-                    <input type="text" class="form-control" value="${question.correct_answer || ''}" onchange="updateCorrectAnswer(${questionIndex}, this.value)">
+                    <div id="correct-answer-${questionIndex}"></div>
                 </div>
             </div>
         </div>
@@ -137,11 +137,47 @@ function addQuestion(existingQuestion = null) {
     const quill = new Quill(`#question-editor-${questionIndex}`, {
         theme: 'snow',
         modules: {
-            toolbar: [
-                ['bold', 'italic', 'underline'],
-                ['link'],
-                ['clean']
-            ]
+            toolbar: {
+                container: [
+                    ['bold', 'italic', 'underline'],
+                    ['link', 'image'],
+                    ['clean']
+                ],
+                handlers: {
+                    'image': function() {
+                        var input = document.createElement('input');
+                        input.setAttribute('type', 'file');
+                        input.setAttribute('accept', 'image/*');
+                        input.click();
+                        
+                        input.onchange = function() {
+                            var file = input.files[0];
+                            if (file) {
+                                var formData = new FormData();
+                                formData.append('image', file);
+                                
+                                fetch('/upload-image', {
+                                    method: 'POST',
+                                    body: formData,
+                                    credentials: 'same-origin'
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.url) {
+                                        var range = quill.getSelection();
+                                        quill.insertEmbed(range.index, 'image', data.url);
+                                    } else {
+                                        console.error('Upload failed:', data.error);
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                });
+                            }
+                        };
+                    }
+                }
+            }
         }
     });
     

@@ -6,37 +6,28 @@
 <div class="container py-5">
     <div class="row mb-5">
         <div class="col-12 text-center">
-            <h1 class="display-4 mb-3">Testele Noastre</h1>
-            <p class="lead text-muted">Verifică-ți cunoștințele cu teste interactive despre evenimente istorice importante</p>
+            <h1 class="display-4 mb-3">Teste</h1>
+            <p class="lead text-muted">Verifică-ți cunoștințele cu aceste teste interactive</p>
         </div>
     </div>
 
     <div class="row">
-        {% if tests %}
-            {% for test in tests %}
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="card h-100 test-card">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ test.title }}</h5>
-                            <p class="card-text text-muted">Test #{{ test.order }}</p>
-                            <button class="btn btn-primary w-100" onclick="startTest({{ test.id }})">
-                                <i class="fas fa-play me-2"></i>Începe Testul
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        {% else %}
-            <div class="col-12">
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i> Nu există teste disponibile încă. Te rugăm să verifici mai târziu.
+        {% for test in tests %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card test-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ test.title }}</h5>
+                    <p class="card-text">Completează acest test pentru a-ți verifica cunoștințele.</p>
+                    <button class="btn btn-primary" onclick="startTest({{ test.id }})">
+                        <i class="fas fa-play me-2"></i>Începe Testul
+                    </button>
                 </div>
             </div>
-        {% endif %}
+        </div>
+        {% endfor %}
     </div>
 </div>
 
-<!-- Test Modal -->
 <div class="modal fade" id="testModal" tabindex="-1" aria-labelledby="testModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -236,7 +227,7 @@
     
     function submitTest() {
         // Send answers to server
-        fetch(`/test/${currentTest.id}/submit`, {
+        fetch(`/submit_test/${currentTest.id}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
